@@ -36,12 +36,16 @@ Path to training ortophoto.
 The shapefile is a training set, defined by polygons containing different classes.
 The classes or categories are indicated in the field "zona" of the attribute
 table.
+
 Example:
-Category  | Description
-1         | Dead trees
-2         | Healthy trees
-3         | Soil
-4         | Shadowed zone
+
+| Category  | Description   |
+-----------------------------
+| 1         | Dead trees    |
+| 2         | Healthy trees |
+| 3         | Soil          |
+| 4         | Shadowed zone |
+
 It is important to make sure that all the classes are well represented in the
 training set. The training set is created manually.
 
