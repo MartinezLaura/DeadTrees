@@ -30,7 +30,7 @@ def init(field, rasterPath, shapePath, INX):
 
     # Creates the folder if it doesn't exist
     if not os.path.exists("pickle/clip/"):
-        os.mkdir("pickle/clip/")
+        os.makedirs("pickle/clip/")
     save("pickle/clip/" + pickleclip, Mylist)
 
 init(field, rasterPath, shapePath, INX)
