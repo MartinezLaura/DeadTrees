@@ -7,8 +7,8 @@ The work flow is developed in the following steps.
 
 ## First step: initialization
 
-The first step is the initialization (-**initialize.py**_). It calls the clipshape
-functions. The -**clipshape**_ creates a dictionary, in which the keys are the
+The first step is the initialization (_**initialize.py**_). It calls the clipshape
+functions. The _**clipshape**_ creates a dictionary, in which the keys are the
 categories provided by the training set (shapefile, see detailed description of
 the input below), and the values are numpy arrays with shape.
 Once this object is created, it is saved into a pickle object in _pickle/clip/_.
@@ -17,13 +17,13 @@ new one.
 
 ## Second step: training
 
-The training is performed by -**train.py**_. It takes in input the pickle clip
+The training is performed by _**train.py**_. It takes in input the pickle clip
 (created by initialize.py) and the name you want to use for the model. Creates
 the model directory _pickle/model/_ if it doesn't exist. It overwrites, so make
 sure to chose a different name for the model if you want a new file.
 
 ## Third step: classification
-The classification is performed by -**predict.py**_. It takes in input the path
+The classification is performed by _**predict.py**_. It takes in input the path
 where the orthophotos are and loops over them. It also takes as input the folder
 where you want to save the results, and the pickle model created by train.py.
 
