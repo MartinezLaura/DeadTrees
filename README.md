@@ -40,7 +40,7 @@ table.
 Example:
 
 | Category  | Description   |
------------------------------
+|-----------|---------------|
 | 1         | Dead trees    |
 | 2         | Healthy trees |
 | 3         | Soil          |
