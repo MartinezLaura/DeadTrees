@@ -8,7 +8,10 @@ import os
 from rtree import index
 
 def Rtree(shppoly):
-    file_idx = index.Rtree('RTREE')
+    '''
+    construction of the segmentation tree of the polygons
+    '''
+    file_idx = index.Rtree('RTREE') #RTREE is the name
     driver = ogr.GetDriverByName("ESRI Shapefile")
     dataSource = driver.Open(shppoly, 0)
     polylayer = dataSource.GetLayer()
@@ -24,6 +27,9 @@ def Rtree(shppoly):
 
 
 def Pointinpolygon(shppoint):
+    '''
+    Tells if the point is inside the polygon and gives the count (OK or KO)
+    '''
 
     cm = []
     driver = ogr.GetDriverByName("ESRI Shapefile")
@@ -41,53 +47,18 @@ def Pointinpolygon(shppoint):
         a = list(file_idx.intersection((p.GetX(),p.GetY())))
         if not a:
             cm.append(points.GetFID())
-    #print len(a)
+
     driver = None
     dataSource = None
     pointsLayer = None
-    print len(cm)
-    print cm
-    # driver3 = ogr.GetDriverByName("ESRI Shapefile")
-    # dataSource3 = driver3.Open(shptile, 0)
-    # tilelayer = dataSource3.GetLayer()
-    # print tilelayer.GetFeatureCount()
 
-    # outShapefile = "tile.shp"
-    # outDriver = ogr.GetDriverByName("ESRI Shapefile")
-    # outDataSource = outDriver.CreateDataSource(outShapefile)
+    print "Number of points inside polygons:" + len(cm)
+    print "List of FIDs of the above polygons:"+ cm
 
 
-    # for tile in tilelayer:
-    #     name = tile.GetField("NAME")
-    #     print name
-    #     outLayer = outDataSource.CreateLayer("tile")
-    #     outLayer.CreateFeature(tile)
-    #     print type(outLayer)
-    #     pointsLayer.Intersection(pointsLayer, outLayer)
-    #     print outLayer.GetFeatureCount()
-    #     break
 
-
-    
-    # polylayer.Intersection(pointsLayer, outLayer)
-    # pointsLayer.ResetReading()
-    # for points in pointsLayer:
-    #     polylayer.ResetReading()
-    #     for polys in polylayer:
-    #         if points.GetGeometryRef().Within(polys.GetGeometryRef()):
-    #             print "True"
-    #             cm["ok"].append(points.GetFID())
-    #         # else:
-            #     print "False"
-            #     cm["ko"].append(points.GetFID())
-
-
-# Pointinpolygon("shpResult/Mosaic.shp", "VisualInt/visual.shp")
-
-# for file in os.listdir("/Volumes/FREECOM/Laura/Pine/shpResult/"):
-#   if file.endswith(".shp"):
-#     file = os.path.splitext(file)[0]
-#     Rtree("/Volumes/LaCie/backup/Laura/Pine/shpResult/" +str(file)+".shp")
-Pointinpolygon("VisualInt/visual.shp")
-
-
+for file in os.listdir("/Volumes/FREECOM/Laura/Pine/shpResult/"):
+  if file.endswith(".shp"):
+    file = os.path.splitext(file)[0]
+    Rtree("/Volumes/LaCie/backup/Laura/Pine/shpResult/" +str(file)+".shp")
+Pointinpolygon("VisualInt/visual.shp") #put the path of the points of deadtrees

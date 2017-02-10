@@ -23,14 +23,14 @@ def main(nameresult):
     pathpickleclip="clipfeat-4"
     # feat, nPixels = ObtainPixelsfromShape('zona', 'Testimg/Mosaic/Mosaic.tif', 'Testimg/Features/Mosaic4-1.shp', False)
     # Mylist = [feat,nPixels]
-    # save("pickle/clip/"+pathpickleclip, Mylist)
+    save("pickle/clip/"+pathpickleclip, Mylist)
 #	  path = "/media/sf_artesto/temporal/test/"
-    path = "/media/sf_artesto/temporal/ortophotos_05022016/"
+    path = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/predictor_layers/texture_layers/2015_pt598000_4413000/"
     #path = "E:\\artesto\\temporal\\ortophotos_05022016\\"
     pathimg=path+nameresult
     Mylist = read("pickle"+os.sep+"clip"+os.sep+pathpickleclip)
     feat = Mylist[0]
-    nPixels = Mylist[1] 
+    nPixels = Mylist[1]
 
     projection, geotrans, imgClass, shpClass = ImageToClassify(pathimg+".tif", False)
 
@@ -53,13 +53,13 @@ def main(nameresult):
 # for i in layer:
 # 	a.append(i.GetField("NAME"))
 #path = "/media/sf_artesto/temporal/test/"
-path = "/media/sf_artesto/temporal/ortophotos_05022016/"
+path = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/predictor_layers/texture_layers/2015_pt598000_4413000/"
 #path = "E:\\artesto\\temporal\\ortophotos_05022016\\"
 #p = Pool(processes=2)
 todo=[]
 count=0
-pathpicklemodel="modelfeat-4"
-Classifier = ImageClassifier(Model = 2, Threads = 4, pathpicklemodel = pathpicklemodel)
+picklemodel="modelfeat-4"
+Classifier = ImageClassifier(Model = 2, Threads = 4, picklemodel = picklemodel)
 for file in os.listdir(path):
   if file.endswith(".tif"):
     file = os.path.splitext(file)[0]

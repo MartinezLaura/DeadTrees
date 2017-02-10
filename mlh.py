@@ -12,7 +12,7 @@ from sklearn.cross_validation import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.externals.six import StringIO 
+from sklearn.externals.six import StringIO
 import numpy as np
 from sklearn import tree
 import time
@@ -32,7 +32,7 @@ import ctypes
 
 shared_array = None
 
-def init(shared_array_base,shape):
+def init(shared_array_base, shape):
   global shared_array
   shared_array = np.ctypeslib.as_array(shared_array_base.get_obj())
   #print "shape:"+str(shape)
@@ -44,7 +44,7 @@ def ClassifyMap(a):
   s,p,m = a
 
   #print str(p)+" "+str(len(s)),
-  shared_array[p:(p+len(s))] = m.predict(s).astype(type(shared_array))
+  shared_array[p:(p + len(s))] = m.predict(s).astype(type(shared_array))
   #shared_array[p:p+len(s)] = np.empty(len(s))
   #start2 = time.time()
   #print str(p)+" "+str(time.time() - start2) + "seg."
@@ -52,53 +52,61 @@ def ClassifyMap(a):
 class ImageClassifier:
 
 
-  def __init__(self, Model, Threads, pathpicklemodel):
-    self.FromFile = pathpicklemodel
+  def __init__(self, modeltype, Threads, picklemodel, model):
+    self.FromFile = picklemodel
     self.imageClass = None
     self.projection = None
     self.geotrans = None
     self.imgOriginal = None
     self.shpOriginal = None
     self.Threads = Threads
-    if not self.FromFile:
-      if model == 1:
-	self.model = SVC(C=1.0, cache_size=200, class_weight=None, coef0=0.0,decision_function_shape=None, degree=3, gamma=1/0.2, kernel='rbf',max_iter=-1, probability=False, random_state=None, shrinking=True,tol=0.001, verbose=False)
-      elif model == 2:
-	self.model = KNeighborsClassifier(n_neighbors=5, weights='distance', algorithm='ball_tree', leaf_size=100, p=1, metric='minkowski', metric_params=None, n_jobs=4)
-      else: 
+    self.model = model
+    #if not self.FromFile:
+    if self.model == None:
+      if modeltype == 1:
+          self.model = SVC(C=1.0, cache_size=200, class_weight=None, coef0=0.0,decision_function_shape=None, degree=3, gamma=1/0.2, kernel='rbf',max_iter=-1, probability=False, random_state=None, shrinking=True,tol=0.001, verbose=False)
+      elif modeltype == 2:
+          self.model = KNeighborsClassifier(n_neighbors=5, weights='distance', algorithm='ball_tree', leaf_size=100, p=1, metric='minkowski', metric_params=None, n_jobs=4)
+      else:
 	raise ValueError('NameError: no found this classification method')
+
+
     else:
       print "Reading model from pickle"+os.sep+"model"+os.sep+self.FromFile
       self.model = read("pickle"+os.sep+"model"+os.sep+self.FromFile)
-      self.model.n_jobs = 1
+    #   self.model.n_jobs = 1
 
   def GetProjection(self):
     return self.projection
-  
+
   def GetGeotrans(self):
     return self.geotrans
+
   def GetShape(self):
     return self.shpOriginal
 
   #Does the classification methot given:
-	  # feat --> dictionari withe the clips of the img with their classes
+	  # feat --> dictionary with the clips of the img with their classes
 	  # nPixels, shpTrain --> for the fit and precdiction
 	  #imgOriginal, shpOriginal --> for the predict function
-	  #Return: image as a matrix with the value of the classification 
-  def Train(self,feat,nPixels,imgOriginal, shpClass,classtype):
+	  #Return: image as a matrix with the value of the classification
+  def Train(self, feat, nPixels, layer, MyName):
+    start = time.time()
     print "Training"
-    if self.FromFile:
-      print "[WW]: training model readed from file."
-    #predicted = np.asarray([])
-    # X = np.empty((nPixels,shpClass[0]),dtype=int)
-    # y = np.empty((nPixels),dtype=np.uint8)
+    predicted = np.asarray([])
+    X = np.empty((nPixels, layer), dtype = int)
+    y = np.empty((nPixels), dtype = np.uint8)
 
-    # #w = np.empty((nPixels),dtype=float)
-    # offset=0
-    # for i in feat: 
-    # 	for j in feat.get(i):
-    #  		X[offset:offset+j.shape[0],:] = j
-    #  		y[offset:offset+j.shape[0]] = i
+    # Useful if you use the random forest classifier
+    # #w = np.empty((nPixels),dtype=float) #for random forest classifier
+
+    offset = 0
+    for i in feat:
+    	for j in feat.get(i):
+     		X[offset:offset + j.shape[0], :] = j
+     		y[offset:offset + j.shape[0]] = i
+
+    # To assign the w
     #  	# 	if i == '0':
     #  	# 		w[offset:offset+j.shape[0]] = 2000000
     # 		# else:
@@ -112,43 +120,61 @@ class ImageClassifier:
     # # # score curves, each time with 20% data randomly selected as a validation set.
     # # # cv = cross_validation.ShuffleSplit(len(y), n_iter=100,
     # # #                                    test_size=0.1, random_state=0)
+    # test_size is the percentage of the traning set
     # # # estimator = KNeighborsClassifier()
     # # # graficas.plot_learning_curve(estimator, title, X, y, ylim=(0.7, 1.01), cv=cv, n_jobs=8)
     # # # plt.show()
 
 
-    
+
 
 
     # #Assign the clasification method
-    # model = ClasMethod(classtype)
-    # print ("Time creating model:")
-    # print time.strftime('%l:%M%p %Z on %b %d, %Y')
+    #model = ClasMethod(classtype)
+    print ("Time creating model:")
+    print time.strftime('%l:%M%p %Z on %b %d, %Y')
 
-    # #training of the model
-    # model.fit(X, y)
-    # print "Time fitting model:"
-    # print time.strftime('%l:%M%p %Z on %b %d, %Y')
+    #training of the model
+    self.model.fit(X, y)
+    print "Time fitting model:"
+    print time.strftime('%l:%M%p %Z on %b %d, %Y')
+    if not os.path.exists("pickle/model/"):
+        os.mkdir("pickle/model/")
+    # print type(self.model)
+    # print self.model
+    #MyList = [self.model]
 
-    # save("pickle/model/"+pathpicklemodel, model)
-    
+    save("pickle/model/" + str(MyName), self.model)
+
   def ImageToClassify(self,imgClass, Bool):
-    print "Reading "+imgClass
+    '''Prepares the images into a matrix, that has each layer as a column, and
+    and the rows are the pixels.
+    imgClass is the image to classify (orthophoto)
+    Bool = False takes R G B NIR
+    Bool = True takes all the other layers, for example indexes, texture etc
+    '''
+    print "Reading " + imgClass
     imgarray = gdalnumeric.LoadFile(imgClass)
-    self.imgOriginal = np.concatenate(imgarray.T)
+    self.imgOriginal = np.concatenate(imgarray.T) #Transpose because of gdal
     img = gdal.Open(imgClass)
-    self.shpOriginal = imgarray.shape
+    self.shpOriginal = imgarray.shape #this is to reshape it back
 
     if Bool ==True:
       imgaux = img.ReadAsArray()
       imgaaux = imgaux.astype(float)
-      imgOriginal = gdal.GetDriverByName('MEM').Create('newbands.tif', imgarray.shape[2], imgarray.shape[1], 5,gdal.GDT_UInt16)
-      imgOriginal.GetRasterBand(1).WriteArray( ((((imgaaux[3]-imgaaux[0]) / (imgaaux[3]+imgaaux[0]))+1)*127.5).astype(int))
-      imgOriginal.GetRasterBand(2).WriteArray(((((imgaaux[1]-imgaaux[0]) / (imgaaux[1]+imgaaux[0]))+1)*127.5).astype(int))
-      imgOriginal.GetRasterBand(4).WriteArray((((imgaaux[1]-imgaaux[2]) / (imgaaux[1]+imgaaux[2])+1)*127.5).astype(int))
-      imgOriginal.GetRasterBand(4).WriteArray((((imgaaux[0]-imgaaux[2]) / (imgaaux[0]+imgaaux[2])+1)*127.5).astype(int))
-      imgOriginal.GetRasterBand(5).WriteArray((((imgaaux[3]-imgaaux[1]) / (imgaaux[3]+imgaaux[1])+1)*127.5).astype(int))
-      imgOriginal = imgOriginal.ReadAsArray()
+      # imgaux[0] = Red
+      # imgaux[1] = green
+      # imgaux[2] = blue
+      # imgaux[3] = nir
+      # if you add new layers, add them here
+      self.imgOriginal = gdal.GetDriverByName('MEM').Create('newbands.tif', imgarray.shape[2], imgarray.shape[1], 5,gdal.GDT_UInt16)
+      self.imgOriginal.GetRasterBand(1).WriteArray( ((((imgaaux[3]-imgaaux[0]) / (imgaaux[3]+imgaaux[0]))+1)*127.5).astype(int)) # ndvi
+      self.imgOriginal.GetRasterBand(1).WriteArray( ((((imgaaux[3]-imgaaux[0]) / (imgaaux[3]+imgaaux[0]))+1)*127.5).astype(int)) # ndvi
+      self.imgOriginal.GetRasterBand(2).WriteArray(((((imgaaux[1]-imgaaux[0]) / (imgaaux[1]+imgaaux[0]))+1)*127.5).astype(int)) # gr
+      self.imgOriginal.GetRasterBand(3).WriteArray((((imgaaux[1]-imgaaux[2]) / (imgaaux[1]+imgaaux[2])+1)*127.5).astype(int)) # bg
+      self.imgOriginal.GetRasterBand(4).WriteArray((((imgaaux[0]-imgaaux[2]) / (imgaaux[0]+imgaaux[2])+1)*127.5).astype(int)) #br
+      self.imgOriginal.GetRasterBand(5).WriteArray((((imgaaux[3]-imgaaux[1]) / (imgaaux[3]+imgaaux[1])+1)*127.5).astype(int)) #nirg
+      self.imgOriginal = imgOriginal.ReadAsArray()
       self.shpOriginal = imgOriginal.shape
       self.imgOriginal = np.concatenate(imgOriginal.T)
 
@@ -161,9 +187,7 @@ class ImageClassifier:
     #shared_array = np.ctypeslib.as_array(shared_array_base.get_obj())
     #shared_array = shared_array.reshape(self.imgOriginal.shape[0])
 
-      
     shared_array_base = multiprocessing.Array(ctypes.c_int, self.imgOriginal.shape[0])
-    
     pool = multiprocessing.Pool(processes=self.Threads,initializer=init, initargs=(shared_array_base,self.imgOriginal.shape[0],))
 
 
@@ -173,25 +197,29 @@ class ImageClassifier:
     start = time.time()
     # make predictions
     print self.shpOriginal
-    print "Total pixels:"+str(self.imgOriginal.shape[0])
+    print "Total pixels:" + str(self.imgOriginal.shape[0])
     #predicted = np.empty(self.imgOriginal.shape[0],dtype=int)
-    
-    size=5000
-    #size = 5000
-    splits=np.array_split(self.imgOriginal,int(self.imgOriginal.shape[0]/size))
+
+    size = 5000
+    #size of the matrix
+    # off is the positions of the pixels
+    # splits are the cuts
+    splits = np.array_split(self.imgOriginal,int(self.imgOriginal.shape[0] / size))
+
     #print len(splits)
     #print np.arange(0,self.imgOriginal.shape[0],size)
-    off=[]
-    b=0
+    off = []
+    b = 0
+    # here we save the positions
     for c in [len(r) for r in splits]:
       off.append(b)
-      b+=c
+      b += c
     a = zip(splits,off,[self.model]*len(splits))
     self.imgOriginal = None
 
 
-    print "Pixels groups:"+str(len(a))+" of size:"+str(size)
-    
+    print "Pixels groups:" + str(len(a)) + " of size: " + str(size)
+
     pool.map(ClassifyMap, a)
 
     #for p,s in zip(pos,splited):
@@ -202,7 +230,7 @@ class ImageClassifier:
       #print str(p)+" "+str(len(s)),
     #predicted = self.model.predict(self.imgOriginal)
 
-    print "Time predicting model:"
+    print "Time predicting model: "
     print time.strftime('%l:%M%p %Z on %b %d, %Y')
 
 
@@ -218,20 +246,20 @@ class ImageClassifier:
     print (end-start)
 
 
-  # #Save the img in the selected folder with the selected Name
-  # 	# projection and geotrans-->  in order to save the geographic posicion of the classification image,
-  def SaveImg(self,imgSavePath):
+  # Save the img in the selected folder with the selected Name
+  # projection and geotrans-->  in order to save the geographic position of the classification image,
+  def SaveImg(self, imgSavePath):
     driver = gdal.GetDriverByName('GTiff')
     #tener en cuenta perdida lzw
     print "%s.tiff saved." %imgSavePath
-    dataset = driver.Create("%s.tiff" %imgSavePath,self.imgClass.T.shape[1],self.imgClass.T.shape[0],1,gdal.GDT_UInt16,[ 'COMPRESS=LZW' ])
+    dataset = driver.Create("%s.tiff" %imgSavePath, self.imgClass.T.shape[1], self.imgClass.T.shape[0], 1, gdal.GDT_UInt16, [ 'COMPRESS=LZW' ])
 
     #Add the geooreferenzzation to the img
-    dataset.SetGeoTransform(self.geotrans)  
+    dataset.SetGeoTransform(self.geotrans)
     dataset.SetProjection(self.projection)
     dataset.GetRasterBand(1).WriteArray(self.imgClass.T)
     dataset.FlushCache()
-    
+
   def GetClassified(self):
     return self.imgClass
 
@@ -244,7 +272,7 @@ class ImageClassifier:
     # return cm,rep
 
   def CrossValidation(self,X,y,model,labels):
-    scores = np.empty(shape=(1,3))	
+    scores = np.empty(shape=(1,3))
     averages = np.empty(shape=(1,3))
     #kf = KFold(len(y), n_folds=3)
     skf = StratifiedKFold(y, 10)

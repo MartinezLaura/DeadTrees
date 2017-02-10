@@ -37,7 +37,10 @@ import os
 
 # srcarray = src_ds.ReadAsArray()
 # def poligonize(srcarray, path, shape,projection,geotrans):
-def poligonize(shape, file):
+def poligonize(shape, path):
+    '''
+    Creates a shapefile with only dead trees
+    '''
     print "Starting Poligonize..."
     start = time.time()
     srcarray[srcarray>1] = 0
@@ -51,14 +54,14 @@ def poligonize(shape, file):
     dest_wkt = srs.ExportToWkt()
     src_ds.SetProjection(dest_wkt)
     gdal_array.BandWriteArray(src_ds.GetRasterBand(1),srcarray.T)
-    
-    
+
+
     #mlh.SaveImg(srcarray,'ImgResult'+os.sep+'Poligon'+os.sep+path+'poligonize',projection,geotrans)
     #src_ds = gdal.Open('ImgResult'+os.sep+'Poligon'+os.sep+path+'poligonize.tiff')
     srcband = src_ds.GetRasterBand(1)
 
     drv = ogr.GetDriverByName("ESRI Shapefile")
-    dst_ds = drv.CreateDataSource( 'shpResult'+os.sep+path + ".shp")
+    dst_ds = drv.CreateDataSource(path + ".shp")
 
 
     driver = ogr.GetDriverByName("ESRI Shapefile")
@@ -69,47 +72,29 @@ def poligonize(shape, file):
     print polylayer.GetName()
     print polylayer.GetFeatureCount()
 
-    newField = ogr.FieldDefn("caca", ogr.OFTInteger)
-    polylayer.CreateField(newField)
-    print"llego"
 
     new_field = ogr.FieldDefn("area", ogr.OFTReal)
     new_field.SetWidth(32)
     new_field.SetPrecision(2) #added line to set precision
     polylayer.CreateField(new_field)
-    print"llego"
+    print "llego"
 
 
     for feature in polylayer:
-        geom = feature.GetGeometryRef() 
-        area = geom.GetArea() 
+        geom = feature.GetGeometryRef()
+        area = geom.GetArea()
         feature.SetField("area", area)
         polylayer.SetFeature(feature)
 
-        print geom.GetArea()
-        # if (geom.GetArea()  < 0.5) or (geom.GetArea()  > 68):
-        #     polylayer.DeleteFeature(feature.GetFID())
+        if (geom.GetArea()  < 0.5) or (geom.GetArea()  > 68):
+            polylayer.DeleteFeature(feature.GetFID())
 
     gdal.Polygonize(srcband, srcband, dst_layer, 0, [], callback=None )
 
-    print "Shapefile correctly saved in shpResult"+os.sep+"%s" %path
+    print "Shapefile correctly saved in "+"%s" %path
     end = time.time()
     print "Time poligonize:"
     print (end-start)
     polylayer.SyncToDisk()
-    dataSource.ExecuteSQL("REPACK "+file)
-    print polylayer.GetFeatureCount()
+    dataSource.ExecuteSQL("REPACK "+path) # if gives an error,change back to file
     dataSource = None
-# img = gdal.Open('MovingW/pt599000-4413000-4-1iter3x3.tiff')
-# imgarray = gdalnumeric.LoadFile('MovingW/pt599000-4413000-4-1iter3x3.tiff')
-# projection = img.GetProjection()
-# geotrans = img.GetGeoTransform()
-# poligonize(imgarray.T, 'pt599000-4413000-4-1iter3x3',projection,geotrans)
-
-
-for file in os.listdir("/Volumes/FREECOM/Laura/Pine/shpResult/"):
-  if file.endswith(".tiff"):
-    file = os.path.splitext(file)[0]
-    poligonize("/Volumes/FREECOM/Laura/Pine/shpResult/" +str(file)+".shp", file)
-
-

@@ -34,7 +34,7 @@ def ImageToClassify(imgClass, Bool):
 
   projection = img.GetProjection()
   geotrans = img.GetGeoTransform()
-  return projection, geotrans, imgOriginal, shpOriginal 
+  return projection, geotrans, imgOriginal, shpOriginal
 
 #Uses a gdal geomatrix (gdal.GetGeoTransform()) to calculate the pixel location of a geospatial coordinate
 def world2Pixel(geoMatrix, x, y):
@@ -58,17 +58,17 @@ def imageToArray(i):
         return a
 
 def NewBands(clipFeat, lrY, ulY,lrX, ulX):
-  # #new indx
+  # #new indx create new layer
   # clip = np.empty((4,lrY- ulY,lrX- ulX))
   # clip[0] = clipFeat[0].astype(np.uint8)  
   # ndvi = (((clipFeat[3]-clipFeat[0]) / (clipFeat[3]+clipFeat[0]))+1)*127.5
   # clip[1] = ndvi.astype(np.uint8)
-  # clip[2] = clipFeat[2].astype(np.uint8) 
+  # clip[2] = clipFeat[2].astype(np.uint8)
   # nirg = ((clipFeat[3]-clipFeat[1]) / (clipFeat[3]+clipFeat[1])+1)*127.5
   # clip[3] = nirg.astype(np.uint8)
 
   #regular ind
-  clip = np.empty((5,lrY- ulY,lrX- ulX)) 
+  clip = np.empty((5,lrY- ulY,lrX- ulX))
   ndvi = (((clipFeat[3]-clipFeat[0]) / (clipFeat[3]+clipFeat[0]))+1)*127.5
   clip[0] = ndvi.astype(np.uint8)
   gr = (((clipFeat[1]-clipFeat[0]) / (clipFeat[1]+clipFeat[0]))+1)*127.5
@@ -79,7 +79,7 @@ def NewBands(clipFeat, lrY, ulY,lrX, ulX):
   clip[3] = br.astype(np.uint8)
   nirg = ((clipFeat[3]-clipFeat[1]) / (clipFeat[3]+clipFeat[1])+1)*127.5
   clip[4] = nirg.astype(np.uint8)
-  
+
   return clip
 
 def ReadClipArray(lrY, ulY,lrX, ulX,img):
@@ -129,12 +129,12 @@ def ObtainPixelsfromShape(field, rasterPath, shapePath, INX):
     # Calculate the pixel size of the new image
     pxWidth = int(lrX - ulX)
     pxHeight = int(lrY - ulY)
-    
+
     if INX == True:
         clip = ReadClipArray(lrY, ulY,lrX, ulX,img)
         clip = NewBands(clip,lrY, ulY,lrX, ulX)
 
-        
+
     else:
       #print"Indexes = False"
       clip = ReadClipArray(lrY, ulY,lrX, ulX,img)
@@ -168,11 +168,11 @@ def ObtainPixelsfromShape(field, rasterPath, shapePath, INX):
     pixels = []
     geom = feature.GetGeometryRef()
     pts = geom.GetGeometryRef(0)
-    
+
     [points.append((pts.GetX(p), pts.GetY(p))) for p in range(pts.GetPointCount())]
-      
+
     [pixels.append(world2Pixel(geoTrans, p[0], p[1])) for p in points]
-      
+
 
     rasterPoly = Image.new("L", (pxWidth, pxHeight), 1)
     rasterize = ImageDraw.Draw(rasterPoly)
