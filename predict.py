@@ -22,28 +22,39 @@ picklemodel = "modelKNN"
 model = read("pickle/model/" + str(picklemodel))
 
 
-Classifier = ImageClassifier(modeltype = 2, Threads = 4, picklemodel = picklemodel, model= model)
+Classifier = ImageClassifier(modeltype = 2, \
+                             Threads = 4, \
+                             picklemodel = picklemodel, \
+                             model= model)
 
 # Loops through all orthophotos in the folder
 for file in os.listdir(orthoPath):
-  if file.endswith(".tif"):
-    file = os.path.splitext(file)[0]
-    # if not os.path.isfile('resultPath'+file + ".shp"):
+    if file.endswith(".tif"):
+        file = os.path.splitext(file)[0]
+        # if not os.path.isfile('resultPath'+file + ".shp"):
 
-    Classifier.ImageToClassify(orthoPath + str(file) + ".tif", False)
-    # False because the indexes don't add information and only confuse the classifier
-    Classifier.Classify()
-    Classifier.SaveImg(resultPath + str(file) + "_classified")
-    break # to be removed
-    #imgResult = read("pickle"+os.sep+"images"+os.sep+nameresult)
-    imgResult = moviw(Classifier.GetClassified(), resultPath + str(file) + "_Smooth", Classifier.GetProjection(), Classifier.GetGeotrans())
-    poligonize(imgResult, resultPath + str(file))
-    # , Classifier.GetShape(),Classifier.GetProjection(), Classifier.GetGeotrans())
-    count += 1
-    if count > 4:
-	break
-    # if (file in a):
-    #file="pt604000-4395000"
-    #print file
-#p.map(main,todo)
+        Classifier.ImageToClassify(orthoPath + str(file) + ".tif", False)
+        # False because the indexes don't add information and only confuse the classifier
+
+        Classifier.Classify()
+        Classifier.SaveImg(resultPath + str(file) + "_classified")
+
+        #break # uncomment here if you want to see the result on 1 tile
+        #imgResult = read("pickle"+os.sep+"images"+os.sep+nameresult)
+
+        imgResult = moviw(Classifier.GetClassified(), \
+                          resultPath + str(file) + "_Smooth", \
+                          Classifier.GetProjection(), \
+                          Classifier.GetGeotrans())
+        poligonize(imgResult, resultPath + str(file))
+
+        # count += 1
+        # if count > 4:
+        # break
+
+        # if (file in a):
+        #file="pt604000-4395000"
+        #print file
+
+#p.map(main, todo)
 #main(todo[0])
