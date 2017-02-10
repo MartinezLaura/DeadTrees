@@ -141,7 +141,7 @@ class ImageClassifier:
 
     # creates the model directory if it doesn't exist
     if not os.path.exists("pickle/model/"):
-        os.mkdir("pickle/model/")
+        os.makedirs("pickle/model/")
     # print type(self.model)
     # print self.model
     #MyList = [self.model]
