@@ -138,6 +138,8 @@ class ImageClassifier:
     self.model.fit(X, y)
     print "Time fitting model:"
     print time.strftime('%l:%M%p %Z on %b %d, %Y')
+
+    # creates the model directory if it doesn't exist
     if not os.path.exists("pickle/model/"):
         os.mkdir("pickle/model/")
     # print type(self.model)

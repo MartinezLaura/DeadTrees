@@ -19,7 +19,7 @@ INX = False # Classification based on only 4 bands
 
 
 def init(field, rasterPath, shapePath, INX):
-    '''Create the initialization files
+    '''Create the initialization file (clip)
     '''
 
     pickleclip = "clipfeat-4" # name of the clip
