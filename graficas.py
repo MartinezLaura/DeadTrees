@@ -14,6 +14,7 @@ from sklearn.learning_curve import learning_curve
 
 def plot_learning_curve(estimator, title, X, y, ylim=None, cv=None,
                         n_jobs=1, train_sizes=np.linspace(.1, 1.0, 5)):
+    #this is plot at page 11 of presentation 2.
     """
     Generate a simple plot of the test and traning learning curve.
 
