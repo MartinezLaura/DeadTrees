@@ -43,14 +43,14 @@ for file in os.listdir(orthoPath):
         #imgResult = read("pickle"+os.sep+"images"+os.sep+nameresult)
 
         imgResult = moviw(Classifier.GetClassified(), \
-                          resultPath + str(file) + "_smooth", \
+                          resultPath + str(file) + "_Smooth", \
                           Classifier.GetProjection(), \
                           Classifier.GetGeotrans())
         poligonize(imgResult, resultPath + str(file))
 
-        count += 1
-        if count > 8:
-        break
+        # count += 1
+        # if count > 4:
+        # break
 
         # if (file in a):
         #file="pt604000-4395000"
