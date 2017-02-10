@@ -8,22 +8,29 @@ from clipshape import *
 from serialize import *
 import os
 
-
-field = 'zona'
+# Information to provide:
+field = 'zona' # field in the shapefile where to read the classes
+# The following is a subset of the ortophoto, in one file, to which the classes
+# are referred
 rasterPath = '/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/Mosaic/Mosaic.tif'
+# The following is a shapefile with polygons representing the various classes
 shapePath = '/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/Features/Mosaic4-1.shp'
-INX = False
+INX = False # Classification based on only 4 bands
 
 
 def init(field, rasterPath, shapePath, INX):
+    '''Create the initialization files
+    '''
 
-  pickleclip="clipfeat-4"
-  feat, nPixels = ObtainPixelsfromShape(field, \
-  rasterPath, \
-  shapePath, INX)
-  Mylist = [feat,nPixels]
-  if not os.path.exists("pickle/clip/"):
-    os.mkdir("pickle/clip/")
-  save("pickle/clip/"+pickleclip, Mylist)
+    pickleclip = "clipfeat-4" # name of the clip
+    feat, nPixels = ObtainPixelsfromShape(field, \
+    rasterPath, \
+    shapePath, INX)
+    Mylist = [feat, nPixels]
+
+    # Creates the folder if it doesn't exist
+    if not os.path.exists("pickle/clip/"):
+        os.mkdir("pickle/clip/")
+    save("pickle/clip/" + pickleclip, Mylist)
 
 init(field, rasterPath, shapePath, INX)
