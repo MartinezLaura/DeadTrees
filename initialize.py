@@ -26,7 +26,7 @@ def init(field, rasterPath, shapePath, INX):
     feat, nPixels = ObtainPixelsfromShape(field, \
     rasterPath, \
     shapePath, INX)
-    Mylist = [feat, nPixels]
+    Mylist = [feat, nPixels] #pickle wants a list as input 
 
     # Creates the folder if it doesn't exist
     if not os.path.exists("pickle/clip/"):
