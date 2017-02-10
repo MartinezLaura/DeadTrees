@@ -39,18 +39,18 @@ for file in os.listdir(orthoPath):
         Classifier.Classify()
         Classifier.SaveImg(resultPath + str(file) + "_classified")
 
-        #break # uncomment here if you want to see the result on 1 tile
+        # break # uncomment here if you want to see the result on 1 tile
         #imgResult = read("pickle"+os.sep+"images"+os.sep+nameresult)
 
         imgResult = moviw(Classifier.GetClassified(), \
-                          resultPath + str(file) + "_Smooth", \
+                          resultPath + str(file) + "_smooth", \
                           Classifier.GetProjection(), \
                           Classifier.GetGeotrans())
         poligonize(imgResult, resultPath + str(file))
 
-        # count += 1
-        # if count > 4:
-        # break
+        count += 1
+        if count > 4:
+            break
 
         # if (file in a):
         #file="pt604000-4395000"
