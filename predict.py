@@ -12,7 +12,8 @@ from poligonize import *
 #from multiprocessing import Pool
 
 # orthoPath is the path to all ortophotos, whereas rasterPath was only the training set
-orthoPath = "/home/v-user/canhemon/H03_CANHEMON/Imagery/Portugal/DMC/ortophotos_05022016/"
+#orthoPath = "/home/v-user/canhemon/H03_CANHEMON/Imagery/Portugal/DMC/ortophotos_05022016/"
+orthoPath  = "/home/v-user/canhemon/H03_CANHEMON/test_madi/ortho/"
 resultPath = "/home/v-user/canhemon/H03_CANHEMON/test_madi/"
 
 feat = defaultdict(list)
@@ -46,7 +47,11 @@ for file in os.listdir(orthoPath):
                           resultPath + str(file) + "_smooth", \
                           Classifier.GetProjection(), \
                           Classifier.GetGeotrans())
-        poligonize(imgResult, resultPath + str(file))
+
+        print "imgResult", imgResult
+
+        # TODO: fix poligonize function
+        # poligonize(imgResult, resultPath + str(file + "_smooth.tif"))
 
         count += 1
         if count > 4:
