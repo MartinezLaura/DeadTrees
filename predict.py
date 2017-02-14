@@ -25,7 +25,7 @@ model = read("pickle/model/" + str(picklemodel))
 Classifier = ImageClassifier(modeltype = 2, \
                              Threads = 4, \
                              picklemodel = picklemodel, \
-                             model= model)
+                             model = model)
 
 # Loops through all orthophotos in the folder
 for file in os.listdir(orthoPath):
