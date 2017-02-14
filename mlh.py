@@ -64,16 +64,36 @@ class ImageClassifier:
     #if not self.FromFile:
     if self.model == None:
       if modeltype == 1:
-          self.model = SVC(C=1.0, cache_size=200, class_weight=None, coef0=0.0,decision_function_shape=None, degree=3, gamma=1/0.2, kernel='rbf',max_iter=-1, probability=False, random_state=None, shrinking=True,tol=0.001, verbose=False)
+          self.model = SVC(C = 1.0, \
+                       cache_size = 200, \
+                       class_weight = None, \
+                       coef0 = 0.0, \
+                       decision_function_shape = None, \
+                       degree = 3, \
+                       gamma = 1 / 0.2, \
+                       kernel = 'rbf', \
+                       max_iter = -1, \
+                       probability = False, \
+                       random_state = None, \
+                       shrinking = True, \
+                       tol = 0.001, \
+                       verbose = False)
       elif modeltype == 2:
-          self.model = KNeighborsClassifier(n_neighbors=5, weights='distance', algorithm='ball_tree', leaf_size=100, p=1, metric='minkowski', metric_params=None, n_jobs=4)
+          self.model = KNeighborsClassifier(n_neighbors = 5, \
+                                            weights = 'distance', \
+                                            algorithm = 'ball_tree', \
+                                            leaf_size = 100, \
+                                            p = 1, \
+                                            metric = 'minkowski', \
+                                            metric_params = None, \
+                                            n_jobs = 4)
       else:
 	raise ValueError('NameError: no found this classification method')
 
 
     else:
-      print "Reading model from pickle"+os.sep+"model"+os.sep+self.FromFile
-      self.model = read("pickle"+os.sep+"model"+os.sep+self.FromFile)
+      print "Reading model from pickle: " + self.FromFile
+      self.model = read("pickle" + os.sep + "model" + os.sep + self.FromFile)
     #   self.model.n_jobs = 1
 
   def GetProjection(self):
