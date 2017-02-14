@@ -35,12 +35,12 @@ import sys
 
 # print "start"
 
-def getrastdata(path):
+def getrasterdata(path):
     '''path contains the name of tif raster file
     '''
     src_ds = gdal.Open(path)
     if src_ds is None:
-        print 'Unable to open %s' % src_filename
+        print 'Unable to open %s' % path
         sys.exit(1)
 
     return src_ds
@@ -64,6 +64,11 @@ def poligonize(shape, path):
     #print type(projection)
     #print projection
     srs.ImportFromWkt(projection)
+
+    # print "shape1 ", shape[1]
+    # print "shape2 ", shape[2]
+    # print "shape ", shape
+
     src_ds  = drv.Create('', shape[2], shape[1], 1, gdal.GDT_UInt16)
     src_ds.SetGeoTransform(geotrans)
     dest_wkt = srs.ExportToWkt()
