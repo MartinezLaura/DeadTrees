@@ -13,21 +13,29 @@ import time
 from scipy.ndimage.filters import median_filter
 import os
 
-def moviw(image, imgSavePath, projection,geotrans):
+def moviw(image, imgSavePath, projection, geotrans):
 	print "Starting Moving Window"
 	start = time.time()
 	median  = image
 	# for i in range (1):
 	# 	# median = medfilt(median,5)
-	median = median_filter(median, (3,3), mode = "mirror")
+	median = median_filter(median, (3, 3), mode = "mirror")
 	# mirror is a method to fill the last column in a moving window
 
-	imgOriginal = gdal.GetDriverByName('GTiff').Create(imgSavePath+".tiff", image.shape[0], image.shape[1], 1,gdal.GDT_UInt16,[ 'COMPRESS=LZW' ])
+	imgOriginal = gdal.GetDriverByName('GTiff').Create(imgSavePath + ".tif", \
+	                                                   image.shape[0], \
+													   image.shape[1], \
+													   1, \
+													   gdal.GDT_UInt16, \
+													   [ 'COMPRESS=LZW' ])
+
 	imgOriginal.GetRasterBand(1).WriteArray(median.T)
 	imgOriginal.SetGeoTransform(geotrans)
 	imgOriginal.SetProjection(projection)
-	print "Image correctly saved in "+"%s" %imgSavePath
+
+	print "Image correctly saved in " + "%s.tif" %imgSavePath
+
 	end = time.time()
 	print "Time movingwindow:"
-	print (end-start)
+	print (end - start)
 	return median
