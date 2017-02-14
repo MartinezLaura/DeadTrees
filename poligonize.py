@@ -11,7 +11,7 @@ import time
 from movingwindow import *
 from osgeo import gdal, gdalnumeric, ogr, osr,gdal_array
 import os
-# import sys
+import sys
 # # this allows GDAL to throw Python Exceptions
 # gdal.UseExceptions()
 
@@ -35,7 +35,17 @@ import os
 
 # print "start"
 
-# srcarray = src_ds.ReadAsArray()
+def getrastdata(path):
+    '''path contains the name of tif raster file
+    '''
+    src_ds = gdal.Open(path)
+    if src_ds is None:
+        print 'Unable to open %s' % src_filename
+        sys.exit(1)
+
+    return src_ds
+
+#srcarray = src_ds.ReadAsArray()
 # def poligonize(srcarray, path, shape,projection,geotrans):
 def poligonize(shape, path):
     '''
@@ -43,17 +53,22 @@ def poligonize(shape, path):
     '''
     print "Starting Poligonize..."
     start = time.time()
-    srcarray[srcarray>1] = 0
+    src_ds = getrasterdata(path)
+    projection = src_ds.GetProjection()
+    geotrans = src_ds.GetGeoTransform()
+    srcarray = src_ds.ReadAsArray()
+    srcarray[srcarray > 1] = 0
+
     drv = gdal.GetDriverByName('MEM')
     srs = osr.SpatialReference()
     #print type(projection)
     #print projection
     srs.ImportFromWkt(projection)
-    src_ds  = drv.Create('',shape[2],shape[1],1,gdal.GDT_UInt16)
+    src_ds  = drv.Create('', shape[2], shape[1], 1, gdal.GDT_UInt16)
     src_ds.SetGeoTransform(geotrans)
     dest_wkt = srs.ExportToWkt()
     src_ds.SetProjection(dest_wkt)
-    gdal_array.BandWriteArray(src_ds.GetRasterBand(1),srcarray.T)
+    gdal_array.BandWriteArray(src_ds.GetRasterBand(1), srcarray.T)
 
 
     #mlh.SaveImg(srcarray,'ImgResult'+os.sep+'Poligon'+os.sep+path+'poligonize',projection,geotrans)
