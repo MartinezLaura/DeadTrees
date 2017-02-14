@@ -41,7 +41,7 @@ def init(shared_array_base, shape):
 
 def ClassifyMap(a):
   start2 = time.time()
-  s,p,m = a
+  s, p, m = a
 
   #print str(p)+" "+str(len(s)),
   shared_array[p:(p + len(s))] = m.predict(s).astype(type(shared_array))
@@ -189,13 +189,29 @@ class ImageClassifier:
       # imgaux[2] = blue
       # imgaux[3] = nir
       # if you add new layers, add them here
-      self.imgOriginal = gdal.GetDriverByName('MEM').Create('newbands.tif', imgarray.shape[2], imgarray.shape[1], 5,gdal.GDT_UInt16)
-      self.imgOriginal.GetRasterBand(1).WriteArray( ((((imgaaux[3]-imgaaux[0]) / (imgaaux[3]+imgaaux[0]))+1)*127.5).astype(int)) # ndvi
-      self.imgOriginal.GetRasterBand(1).WriteArray( ((((imgaaux[3]-imgaaux[0]) / (imgaaux[3]+imgaaux[0]))+1)*127.5).astype(int)) # ndvi
-      self.imgOriginal.GetRasterBand(2).WriteArray(((((imgaaux[1]-imgaaux[0]) / (imgaaux[1]+imgaaux[0]))+1)*127.5).astype(int)) # gr
-      self.imgOriginal.GetRasterBand(3).WriteArray((((imgaaux[1]-imgaaux[2]) / (imgaaux[1]+imgaaux[2])+1)*127.5).astype(int)) # bg
-      self.imgOriginal.GetRasterBand(4).WriteArray((((imgaaux[0]-imgaaux[2]) / (imgaaux[0]+imgaaux[2])+1)*127.5).astype(int)) #br
-      self.imgOriginal.GetRasterBand(5).WriteArray((((imgaaux[3]-imgaaux[1]) / (imgaaux[3]+imgaaux[1])+1)*127.5).astype(int)) #nirg
+      self.imgOriginal = gdal.GetDriverByName('MEM').Create('newbands.tif', \
+                                                             imgarray.shape[2], \
+                                                             imgarray.shape[1], \
+                                                             5, \
+                                                             gdal.GDT_UInt16)
+      self.imgOriginal.GetRasterBand(1).WriteArray(((((imgaaux[3] - imgaaux[0]) \
+                                                    / (imgaaux[3] + imgaaux[0])) \
+                                                    + 1) * 127.5).astype(int)) # ndvi
+      self.imgOriginal.GetRasterBand(1).WriteArray(((((imgaaux[3] - imgaaux[0]) \
+                                                    / (imgaaux[3] + imgaaux[0])) \
+                                                    + 1) * 127.5).astype(int)) # ndvi
+      self.imgOriginal.GetRasterBand(2).WriteArray(((((imgaaux[1] - imgaaux[0]) \
+                                                    / (imgaaux[1] + imgaaux[0])) \
+                                                    + 1) * 127.5).astype(int)) # gr
+      self.imgOriginal.GetRasterBand(3).WriteArray((((imgaaux[1] - imgaaux[2]) \
+                                                   / (imgaaux[1] + imgaaux[2]) \
+                                                   + 1) * 127.5).astype(int)) # bg
+      self.imgOriginal.GetRasterBand(4).WriteArray((((imgaaux[0] - imgaaux[2]) \
+                                                   / (imgaaux[0] + imgaaux[2]) \
+                                                   + 1) * 127.5).astype(int)) #br
+      self.imgOriginal.GetRasterBand(5).WriteArray((((imgaaux[3] - imgaaux[1]) \
+                                                   / (imgaaux[3] + imgaaux[1]) \
+                                                   + 1) * 127.5).astype(int)) #nirg
       self.imgOriginal = imgOriginal.ReadAsArray()
       self.shpOriginal = imgOriginal.shape
       self.imgOriginal = np.concatenate(imgOriginal.T)
@@ -210,7 +226,9 @@ class ImageClassifier:
     #shared_array = shared_array.reshape(self.imgOriginal.shape[0])
 
     shared_array_base = multiprocessing.Array(ctypes.c_int, self.imgOriginal.shape[0])
-    pool = multiprocessing.Pool(processes=self.Threads,initializer=init, initargs=(shared_array_base,self.imgOriginal.shape[0],))
+    pool = multiprocessing.Pool(processes = self.Threads, \
+                                initializer = init, \
+                                initargs = (shared_array_base, self.imgOriginal.shape[0]))
 
 
     #counter = Value('i', 0)
@@ -226,7 +244,7 @@ class ImageClassifier:
     #size of the matrix
     # off is the positions of the pixels
     # splits are the cuts
-    splits = np.array_split(self.imgOriginal,int(self.imgOriginal.shape[0] / size))
+    splits = np.array_split(self.imgOriginal, int(self.imgOriginal.shape[0] / size))
 
     #print len(splits)
     #print np.arange(0,self.imgOriginal.shape[0],size)
@@ -236,7 +254,7 @@ class ImageClassifier:
     for c in [len(r) for r in splits]:
       off.append(b)
       b += c
-    a = zip(splits,off,[self.model]*len(splits))
+    a = zip(splits, off, [self.model] * len(splits))
     self.imgOriginal = None
 
 
@@ -258,14 +276,14 @@ class ImageClassifier:
 
     #give the original shape to the img in order to save it
     shared_array = np.ctypeslib.as_array(shared_array_base.get_obj())
-    self.imgClass = shared_array.reshape((self.shpOriginal[2],self.shpOriginal[1]))
+    self.imgClass = shared_array.reshape((self.shpOriginal[2], self.shpOriginal[1]))
     #shared_array = shared_array.reshape((self.shpOriginal[2],self.shpOriginal[1]))
     predicted = None
     shared_array_base = None
     shared_array = None
     end = time.time()
     print "Time classification:"
-    print (end-start)
+    print (end - start)
 
 
   # Save the img in the selected folder with the selected Name
@@ -273,8 +291,13 @@ class ImageClassifier:
   def SaveImg(self, imgSavePath):
     driver = gdal.GetDriverByName('GTiff')
     #tener en cuenta perdida lzw
-    print "%s.tiff saved." %imgSavePath
-    dataset = driver.Create("%s.tiff" %imgSavePath, self.imgClass.T.shape[1], self.imgClass.T.shape[0], 1, gdal.GDT_UInt16, [ 'COMPRESS=LZW' ])
+    print "%s.tif saved." %imgSavePath
+    dataset = driver.Create("%s.tif" %imgSavePath, \
+                             self.imgClass.T.shape[1], \
+                             self.imgClass.T.shape[0], \
+                             1, \
+                             gdal.GDT_UInt16, \
+                             [ 'COMPRESS=LZW' ])
 
     #Add the geooreferenzzation to the img
     dataset.SetGeoTransform(self.geotrans)
