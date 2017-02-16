@@ -12,6 +12,7 @@ from sklearn.cross_validation import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors import RadiusNeighborsClassifier
 from sklearn.externals.six import StringIO
 import numpy as np
 from sklearn import tree
@@ -42,9 +43,13 @@ def init(shared_array_base, shape):
 def ClassifyMap(a):
   start2 = time.time()
   s, p, m = a
+  # s is the split
+  # p is the position
+  # m is the model
+
 
   #print str(p)+" "+str(len(s)),
-  shared_array[p:(p + len(s))] = m.predict(s).astype(type(shared_array))
+  shared_array[p : (p + len(s))] = m.predict(s).astype(type(shared_array))
   #shared_array[p:p+len(s)] = np.empty(len(s))
   #start2 = time.time()
   #print str(p)+" "+str(time.time() - start2) + "seg."
@@ -79,14 +84,27 @@ class ImageClassifier:
                        tol = 0.001, \
                        verbose = False)
       elif modeltype == 2:
-          self.model = KNeighborsClassifier(n_neighbors = 5, \
+          self.model = KNeighborsClassifier(n_neighbors = 9, \
                                             weights = 'distance', \
                                             algorithm = 'ball_tree', \
-                                            leaf_size = 100, \
+                                            leaf_size = 700, \
                                             p = 1, \
                                             metric = 'minkowski', \
                                             metric_params = None, \
-                                            n_jobs = 4)
+                                            n_jobs = -1) #leaf_size = 100
+                                            #n_neighbors = 5
+
+      elif modeltype == 3:
+          self.model = RadiusNeighborsClassifier(radius = 50.0, \
+                                                 weights = 'distance', \
+                                                 algorithm = 'ball_tree', \
+                                                 leaf_size = 700, \
+                                                 p = 2, \
+                                                 metric = 'minkowski', \
+                                                 outlier_label = None, \
+                                                 metric_params = None)
+
+
       else:
 	raise ValueError('NameError: no found this classification method')
 
@@ -110,6 +128,7 @@ class ImageClassifier:
 	  # nPixels, shpTrain --> for the fit and precdiction
 	  #imgOriginal, shpOriginal --> for the predict function
 	  #Return: image as a matrix with the value of the classification
+
   def Train(self, feat, nPixels, layer, MyName):
     start = time.time()
     print "Training"
@@ -119,12 +138,11 @@ class ImageClassifier:
 
     # Useful if you use the random forest classifier
     # #w = np.empty((nPixels),dtype=float) #for random forest classifier
-
     offset = 0
     for i in feat:
     	for j in feat.get(i):
-     		X[offset:offset + j.shape[0], :] = j
-     		y[offset:offset + j.shape[0]] = i
+     		X[offset : offset + j.shape[0], :] = j
+     		y[offset : offset + j.shape[0]] = i
 
     # To assign the w
     #  	# 	if i == '0':
@@ -132,7 +150,6 @@ class ImageClassifier:
     # 		# else:
     # 		# 	w[offset:offset+j.shape[0]] = 1
     #  		offset+=j.shape[0]
-
 
 
     # # # title = "Learning Curves (KNN)"
@@ -144,9 +161,6 @@ class ImageClassifier:
     # # # estimator = KNeighborsClassifier()
     # # # graficas.plot_learning_curve(estimator, title, X, y, ylim=(0.7, 1.01), cv=cv, n_jobs=8)
     # # # plt.show()
-
-
-
 
 
     # #Assign the clasification method
@@ -168,7 +182,7 @@ class ImageClassifier:
 
     save("pickle/model/" + str(MyName), self.model)
 
-  def ImageToClassify(self,imgClass, Bool):
+  def ImageToClassify(self, imgClass, Bool):
     '''Prepares the images into a matrix, that has each layer as a column, and
     and the rows are the pixels.
     imgClass is the image to classify (orthophoto)
@@ -181,37 +195,43 @@ class ImageClassifier:
     img = gdal.Open(imgClass)
     self.shpOriginal = imgarray.shape #this is to reshape it back
 
-    if Bool ==True:
+    if Bool == True:
       imgaux = img.ReadAsArray()
       imgaaux = imgaux.astype(float)
+
       # imgaux[0] = Red
       # imgaux[1] = green
       # imgaux[2] = blue
       # imgaux[3] = nir
       # if you add new layers, add them here
+
+      # create dataset in memory
       self.imgOriginal = gdal.GetDriverByName('MEM').Create('newbands.tif', \
                                                              imgarray.shape[2], \
                                                              imgarray.shape[1], \
                                                              5, \
                                                              gdal.GDT_UInt16)
+
       self.imgOriginal.GetRasterBand(1).WriteArray(((((imgaaux[3] - imgaaux[0]) \
                                                     / (imgaaux[3] + imgaaux[0])) \
                                                     + 1) * 127.5).astype(int)) # ndvi
-      self.imgOriginal.GetRasterBand(1).WriteArray(((((imgaaux[3] - imgaaux[0]) \
-                                                    / (imgaaux[3] + imgaaux[0])) \
-                                                    + 1) * 127.5).astype(int)) # ndvi
+
       self.imgOriginal.GetRasterBand(2).WriteArray(((((imgaaux[1] - imgaaux[0]) \
                                                     / (imgaaux[1] + imgaaux[0])) \
                                                     + 1) * 127.5).astype(int)) # gr
+
       self.imgOriginal.GetRasterBand(3).WriteArray((((imgaaux[1] - imgaaux[2]) \
                                                    / (imgaaux[1] + imgaaux[2]) \
                                                    + 1) * 127.5).astype(int)) # bg
+
       self.imgOriginal.GetRasterBand(4).WriteArray((((imgaaux[0] - imgaaux[2]) \
                                                    / (imgaaux[0] + imgaaux[2]) \
                                                    + 1) * 127.5).astype(int)) #br
+
       self.imgOriginal.GetRasterBand(5).WriteArray((((imgaaux[3] - imgaaux[1]) \
                                                    / (imgaaux[3] + imgaaux[1]) \
                                                    + 1) * 127.5).astype(int)) #nirg
+
       self.imgOriginal = imgOriginal.ReadAsArray()
       self.shpOriginal = imgOriginal.shape
       self.imgOriginal = np.concatenate(imgOriginal.T)
@@ -226,6 +246,7 @@ class ImageClassifier:
     #shared_array = shared_array.reshape(self.imgOriginal.shape[0])
 
     shared_array_base = multiprocessing.Array(ctypes.c_int, self.imgOriginal.shape[0])
+
     pool = multiprocessing.Pool(processes = self.Threads, \
                                 initializer = init, \
                                 initargs = (shared_array_base, self.imgOriginal.shape[0]))
@@ -246,7 +267,7 @@ class ImageClassifier:
     # splits are the cuts
     splits = np.array_split(self.imgOriginal, int(self.imgOriginal.shape[0] / size))
 
-    #print len(splits)
+    # print "len(splits): ", len(splits)
     #print np.arange(0,self.imgOriginal.shape[0],size)
     off = []
     b = 0
@@ -258,7 +279,7 @@ class ImageClassifier:
     self.imgOriginal = None
 
 
-    print "Pixels groups:" + str(len(a)) + " of size: " + str(size)
+    print "Pixels groups: " + str(len(a)) + " of size: " + str(size)
 
     pool.map(ClassifyMap, a)
 
@@ -316,9 +337,9 @@ class ImageClassifier:
     print cm
     # return cm,rep
 
-  def CrossValidation(self,X,y,model,labels):
-    scores = np.empty(shape=(1,3))
-    averages = np.empty(shape=(1,3))
+  def CrossValidation(self, X, y, model, labels):
+    scores = np.empty(shape = (1, 3))
+    averages = np.empty(shape = (1, 3))
     #kf = KFold(len(y), n_folds=3)
     skf = StratifiedKFold(y, 10)
     #rs = cross_validation.ShuffleSplit(len(y), n_iter=100,test_size=.2, random_state=0)
@@ -326,11 +347,11 @@ class ImageClassifier:
 	    inx = 0
 	    X_train, X_test = X[train], X[test]
 	    y_train, y_test = y[train], y[test]
-	    predicted = model.fit(X_train,y_train)
+	    predicted = model.fit(X_train, y_train)
 	    y_pred = predicted.predict(X_test)
 	    Metrics(y_test, y_pred, labels)
-	    score = predicted.score(X_test,y_test)
-	    predicted = cross_validation.cross_val_predict(model, X_train,y_train)
+	    score = predicted.score(X_test, y_test)
+	    predicted = cross_validation.cross_val_predict(model, X_train, y_train)
 	    metricModel = metrics.accuracy_score(y_train, predicted)
 	    print score
 	    print metricModel
@@ -343,16 +364,16 @@ class ImageClassifier:
     # plt.show()
     #return metricModel,score
 
-  def WriteTxt(self,cm,rep,score,metricModel,imgSavePath):
+  def WriteTxt(self, cm, rep, score, metricModel, imgSavePath):
     archi=open("%s.txt" %imgSavePath,'w')
-    archi.write('Confusion Marix \n')
+    archi.write('Confusion Matrix \n')
     archi.write('%s \n' %cm)
     archi.write('Other metrics \n')
     archi.write('%s \n' %rep)
     archi.write('Cross Validation \n')
     archi.write('Score\n')
     archi.write('%s \n' %self.score)
-    archi.write('Accurancy model\n')
+    archi.write('Accurancy model \n')
     archi.write('%s \n' %metricModel)
     # archi.write("Accuracy: %0.2f (+/- %0.2f)" % (score.mean(), score.std() * 2))
     archi.close()
