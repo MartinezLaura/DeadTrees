@@ -16,10 +16,11 @@ import os
 def moviw(image, imgSavePath, projection, geotrans):
 	print "Starting Moving Window"
 	start = time.time()
-	median  = image
+	#median = image
 	# for i in range (1):
 	# 	# median = medfilt(median,5)
-	median = median_filter(median, (3, 3), mode = "mirror")
+	# median = median_filter(median, (3, 3), mode = "mirror")
+	median = median_filter(image, (3, 3), mode = "mirror")
 	# mirror is a method to fill the last column in a moving window
 
 	imgOriginal = gdal.GetDriverByName('GTiff').Create(imgSavePath + ".tif", \
