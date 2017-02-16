@@ -14,12 +14,13 @@ from poligonize import *
 # orthoPath is the path to all ortophotos, whereas rasterPath was only the training set
 #orthoPath = "/home/v-user/canhemon/H03_CANHEMON/Imagery/Portugal/DMC/ortophotos_05022016/"
 orthoPath  = "/home/v-user/canhemon/H03_CANHEMON/test_madi/ortho/"
-resultPath = "/home/v-user/canhemon/H03_CANHEMON/test_madi/"
+resultPath = "/home/v-user/canhemon/H03_CANHEMON/test_madi/results/"
 
 feat = defaultdict(list)
 todo = []
 count = 0
 picklemodel = "modelKNN"
+#picklemodel = "RadiusNeighborsC"
 model = read("pickle/model/" + str(picklemodel))
 
 
@@ -32,16 +33,15 @@ Classifier = ImageClassifier(modeltype = 2, \
 for file in os.listdir(orthoPath):
     if file.endswith(".tif"):
         file = os.path.splitext(file)[0]
-        # if not os.path.isfile('resultPath'+file + ".shp"):
 
         Classifier.ImageToClassify(orthoPath + str(file) + ".tif", False)
         # False because the indexes don't add information and only confuse the classifier
+        # To add more layer, change to True
 
         Classifier.Classify()
         Classifier.SaveImg(resultPath + str(file) + "_classified")
 
         # break # uncomment here if you want to see the result on 1 tile
-        #imgResult = read("pickle"+os.sep+"images"+os.sep+nameresult)
 
         imgResult = moviw(Classifier.GetClassified(), \
                           resultPath + str(file) + "_smooth", \
@@ -52,6 +52,7 @@ for file in os.listdir(orthoPath):
 
         # TODO: fix poligonize function
         # poligonize(imgResult, resultPath + str(file + "_smooth.tif"))
+        # poligonize(resultPath, file)
 
         count += 1
         if count > 4:
