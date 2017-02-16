@@ -12,6 +12,7 @@ from serialize import *
 
 # the pickle of the model is different from the clipshape
 picklemodel = "modelKNN" # name
+#picklemodel = "RadiusNeighborsC"
 
 # here you can put None to create a new pickle, or the name of an existing pickle
 # For example: the pickle created by initialize.py
@@ -32,3 +33,6 @@ nPixels = Mylist[1]
 #     MyName = picklemodel
 
 Classifier.Train(feat, nPixels, layer, picklemodel)
+
+mod = read("pickle/model/" + str(picklemodel))
+print "Model: ", mod
