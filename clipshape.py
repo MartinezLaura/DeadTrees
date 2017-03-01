@@ -10,6 +10,7 @@ from PIL import Image, ImageDraw
 from collections import defaultdict
 import pickle
 import time
+from texture_common import *
 
 #import matplotlib.pyplot as plt
 
@@ -59,7 +60,7 @@ def imageToArray(i):
 
 def NewBands(clipFeat, lrY, ulY, lrX, ulX):
     # #new indx create new layer
-    # clip = np.empty((4,lrY- ulY,lrX- ulX))
+    # clip = np.empty((4, lrY - ulY, lrX - ulX))
     # clip[0] = clipFeat[0].astype(np.uint8)
     # ndvi = (((clipFeat[3]-clipFeat[0]) / (clipFeat[3]+clipFeat[0]))+1)*127.5
     # clip[1] = ndvi.astype(np.uint8)
@@ -94,7 +95,7 @@ def ReadClipArray(lrY, ulY, lrX, ulX, img):
 
 
 #Does the clip of the shape
-def ObtainPixelsfromShape(field, rasterPath, shapePath, INX):
+def ObtainPixelsfromShape(field, rasterPath, shapePath, INX, *args):
 
     # field='zona'
     # open dataset, also load as a gdal image to get geotransform
@@ -129,9 +130,16 @@ def ObtainPixelsfromShape(field, rasterPath, shapePath, INX):
         pxWidth  = int(lrX - ulX)
         pxHeight = int(lrY - ulY)
 
-        if INX == True:
-            clip = ReadClipArray(lrY, ulY, lrX, ulX, img)
-            clip = NewBands(clip, lrY, ulY, lrX, ulX)
+        # if INX == True:
+        #     clip = ReadClipArray(lrY, ulY, lrX, ulX, img)
+        #     clip = NewBands(clip, lrY, ulY, lrX, ulX)
+
+        if args:
+            texture_train_Path = args[0]
+            print texture_train_Path
+            textureArray = LoadTextureLayers(texture_train_Path)
+            clip = ReadClipArray(lrY, ulY, lrX, ulX, textureArray)
+            # clip = ClipTextureLayers(args, clip, lrY, ulY, lrX, ulX)
 
 
         else:
