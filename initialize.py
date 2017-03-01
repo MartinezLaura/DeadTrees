@@ -1,5 +1,5 @@
 __author__ = "Laura Martinez Sanchez, Margherita Di Leo"
-__license__ = "GPL 3"
+__license__ = "GPL v.3"
 __version__ = "2.0"
 __email__ = "lmartisa@gmail.com, dileomargherita@gmail.com"
 
@@ -19,14 +19,17 @@ INX = False # Classification based on only 4 bands
 
 
 def init(field, rasterPath, shapePath, INX):
-    '''Create the initialization file (clip)
+    '''
+    Create the initialization file (clip)
     '''
 
     pickleclip = "clipfeat-4" # name of the clip
     feat, nPixels = ObtainPixelsfromShape(field, \
-    rasterPath, \
-    shapePath, INX)
-    Mylist = [feat, nPixels] #pickle wants a list as input 
+                                          rasterPath, \
+                                          shapePath, \
+                                          INX)
+    # INX can be false. If True, uses additional layers.
+    Mylist = [feat, nPixels] #pickle wants a list as input
 
     # Creates the folder if it doesn't exist
     if not os.path.exists("pickle/clip/"):
