@@ -18,20 +18,19 @@ shapePath   = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_t
 # Path to the texture layers of the training set
 texture_train_Path = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/texture_training/"
 
-INX = True
+INX = False
 
 
-def init(field, rasterPath, shapePath, INX, texture_train_Path):
+def init_texture(field, rasterPath, shapePath, INX, name):
     '''
     Create the initialization file (clip)
     '''
 
-    pickleclip = "clipfeat-4" # name of the clip
+    pickleclip = name # name of the clip
     feat, nPixels = ObtainPixelsfromShape(field, \
                                           rasterPath, \
                                           shapePath, \
-                                          INX, \
-                                          texture_train_Path)
+                                          INX)
     # INX can be false. If True, uses additional layers.
     Mylist = [feat, nPixels] #pickle wants a list as input
 
@@ -40,4 +39,4 @@ def init(field, rasterPath, shapePath, INX, texture_train_Path):
         os.makedirs("pickle/clip/")
     save("pickle/clip/" + pickleclip, Mylist)
 
-init(field, rasterPath, shapePath, INX, texture_train_Path)
+# init(field, rasterPath, shapePath, INX, texture_train_Path)
