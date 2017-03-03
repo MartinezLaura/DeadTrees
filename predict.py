@@ -13,8 +13,8 @@ from poligonize import *
 
 # orthoPath is the path to all ortophotos, whereas rasterPath was only the training set
 #orthoPath = "/home/v-user/canhemon/H03_CANHEMON/Imagery/Portugal/DMC/ortophotos_05022016/"
-orthoPath  = "/home/v-user/canhemon/H03_CANHEMON/test_madi/ortho/"
-resultPath = "/home/v-user/canhemon/H03_CANHEMON/test_madi/results/"
+orthoPath  = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/ortho/"
+resultPath = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/results/"
 
 feat = defaultdict(list)
 todo = []
@@ -34,9 +34,11 @@ for file in os.listdir(orthoPath):
     if file.endswith(".tif"):
         file = os.path.splitext(file)[0]
 
-        Classifier.ImageToClassify(orthoPath + str(file) + ".tif", False)
+        # Classifier.ImageToClassify(orthoPath + str(file) + ".tif", False)
         # False because the indexes don't add information and only confuse the classifier
         # To add more layer, change to True
+
+        Classifier.ImageToClassify(orthoPath + str(file) + ".tif", False)
 
         Classifier.Classify()
         Classifier.SaveImg(resultPath + str(file) + "_classified")
