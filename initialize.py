@@ -24,10 +24,12 @@ def init(field, rasterPath, shapePath, INX):
     '''
 
     pickleclip = "clipfeat-4" # name of the clip
+
     feat, nPixels = ObtainPixelsfromShape(field, \
                                           rasterPath, \
                                           shapePath, \
                                           INX)
+    print feat.keys()
     # INX can be false. If True, uses additional layers.
     Mylist = [feat, nPixels] #pickle wants a list as input
 
