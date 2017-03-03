@@ -84,8 +84,8 @@ class ImageClassifier:
                        tol = 0.001, \
                        verbose = False)
 
-        elif modeltype == 2:
-            self.model = KNeighborsClassifier(n_neighbors = 5, \
+            elif modeltype == 2:
+                self.model = KNeighborsClassifier(n_neighbors = 5, \
                                             weights = 'distance', \
                                             algorithm = 'ball_tree', \
                                             leaf_size = 100, \
@@ -94,8 +94,8 @@ class ImageClassifier:
                                             metric_params = None, \
                                             n_jobs = -1)
 
-        elif modeltype == 3:
-            self.model = RadiusNeighborsClassifier(radius = 50.0, \
+            elif modeltype == 3:
+                self.model = RadiusNeighborsClassifier(radius = 50.0, \
                                                  weights = 'distance', \
                                                  algorithm = 'ball_tree', \
                                                  leaf_size = 700, \
@@ -105,10 +105,10 @@ class ImageClassifier:
                                                  metric_params = None)
 
 
-        else:
-            raise ValueError('NameError: no found this classification method')
+            else:
+                raise ValueError('NameError: no found this classification method')
 
-    
+
     # else:
     #   print "Reading model from pickle: " + self.FromFile
     #   self.model = read("pickle" + os.sep + "model" + os.sep + self.FromFile)
@@ -143,7 +143,8 @@ class ImageClassifier:
             for j in feat.get(i):
                 X[offset : offset + j.shape[0], :] = j
                 y[offset : offset + j.shape[0]] = i
-
+                offset+=j.shape[0]
+        print "X.shape" , X.shape
         # To assign the w
         #  	# 	if i == '0':
         #  	# 		w[offset:offset+j.shape[0]] = 2000000
@@ -189,11 +190,11 @@ class ImageClassifier:
         Bool = False takes R G B NIR
         Bool = True takes all the other layers, for example indexes, texture etc
         '''
-        # print "Reading " + imgClass
-        # imgarray = gdalnumeric.LoadFile(imgClass)
-        # self.imgOriginal = np.concatenate(imgarray.T) #Transpose because of gdal
-        # img = gdal.Open(imgClass)
-        # self.shpOriginal = imgarray.shape #this is to reshape it back
+        print "Reading " + imgClass
+        imgarray = gdalnumeric.LoadFile(imgClass)
+        self.imgOriginal = np.concatenate(imgarray.T) #Transpose because of gdal
+        img = gdal.Open(imgClass)
+        self.shpOriginal = imgarray.shape #this is to reshape it back
 
         if Bool == True:
             #   imgaux = img.ReadAsArray()
@@ -255,6 +256,7 @@ class ImageClassifier:
 
         self.projection = img.GetProjection()
         self.geotrans = img.GetGeoTransform()
+        print "self.imgOriginal", self.imgOriginal
 
 
     def Classify(self):
