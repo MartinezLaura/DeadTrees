@@ -12,7 +12,7 @@ import pickle
 import time
 from texture_common import *
 
-#import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 # def ImageToClassify(imgClass, Bool):
 #     imgarray = gdalnumeric.LoadFile(imgClass)
@@ -104,10 +104,12 @@ def ObtainPixelsfromShape(field, rasterPath, shapePath, INX, *args):
     start = time.time()
 
     img = gdal.Open(rasterPath)
+
     geoTrans = img.GetGeoTransform()
     geoTransaux = img.GetGeoTransform()
     proj = img.GetProjection()
     imgarrayaux = img.ReadAsArray().shape
+    print "img.ReadAsArray().shape", img.ReadAsArray().shape
 
 
     #open shapefile
@@ -185,9 +187,11 @@ def ObtainPixelsfromShape(field, rasterPath, shapePath, INX, *args):
         rasterize = ImageDraw.Draw(rasterPoly)
         rasterize.polygon(pixels, 0)
         mask = imageToArray(rasterPoly)
-        #print mask.shape
 
-        # #SHow the clips of the features
+
+
+
+        #SHow the clips of the features
         # plt.imshow(mask)
         # plt.show()
 
@@ -198,7 +202,9 @@ def ObtainPixelsfromShape(field, rasterPath, shapePath, INX, *args):
         # plt.imshow(temp[4])
         # plt.show()
         temp = np.concatenate(temp.T)
-        temp = temp[~np.isnan(temp[:, 0])]
+        temp = temp[~np.isnan(temp[:, 0])] #NaN
+        #print temp.shape
+
 
 
         clipdic[str(feature.GetField(field))].append(temp)
@@ -206,5 +212,6 @@ def ObtainPixelsfromShape(field, rasterPath, shapePath, INX, *args):
     end = time.time()
     print "Time clipshape:"
     print (end - start)
+    print "count", count
     return clipdic, count
 ##########################################################################
