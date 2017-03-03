@@ -32,6 +32,7 @@ nPixels = Mylist[1]
 # else:
 #     MyName = picklemodel
 
+print "feat.keys()", feat.keys()
 Classifier.Train(feat, nPixels, layer, picklemodel)
 
 mod = read("pickle/model/" + str(picklemodel))
