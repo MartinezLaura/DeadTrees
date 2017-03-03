@@ -35,28 +35,28 @@ def LoadTextureLayers(texturepath):
     nrows = int(first.shape[0]); print "nrows ", nrows
     ncols = int(first.shape[1]); print "ncols ", ncols
 
-    images = np.ndarray((nrows, ncols))
-
-    print images.shape
-    idx = 0
-    img_ds = None
-
-    for file in os.listdir(texturepath):
-        idx = idx + 1
-        print idx
-        img_ds = gdal_array.LoadFile(texturepath + file, gdal.GA_ReadOnly)
-
-        images = np.stack((images, img_ds), axis = 2)
-        print images.shape
-
-    print "len(images) ", len(images)
+    # images = np.ndarray((nrows, ncols))
+    #
+    # print images.shape
+    # idx = 0
+    # img_ds = None
+    #
+    # for file in os.listdir(texturepath):
+    #     idx = idx + 1
+    #     print idx
+    #     img_ds = gdal_array.LoadFile(texturepath + file, gdal.GA_ReadOnly)
+    #
+    #     images = np.stack((images, img_ds), axis = 2)
+    #     print images.shape
+    #
+    # print "len(images) ", len(images)
 
 
     return images
 
 
 
-    # 
+    #
     # for file in os.listdir(texturepath):
     #     imgarray = gdalnumeric.LoadFile(file)
     #     shpOriginal = imgarray.shape  # save shape for later
