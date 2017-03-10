@@ -13,27 +13,27 @@ import time
 
 #-------------------------------------------------------------------------------
 def ListTextureLayers(texturepath):
-    for file in os.listdir(texturepath):
-        texturelist = []
+    texturelist = []
+    for file in os.listdir(str(texturepath)):
         if file.endswith(".tif"):
             texturelist.append(file)
     return texturelist
 
 
 #-------------------------------------------------------------------------------
-def LoadTextureLayers(texturepath):
-
-    # Tell GDAL to throw Python exceptions, and register all drivers
-    gdal.UseExceptions()
-    gdal.AllRegister()
-
-    first1 = texturepath + os.listdir(texturepath)[0]
-    print "first1 ", first1
-
-    first = gdal_array.LoadFile(first1, gdal.GA_ReadOnly)
-
-    nrows = int(first.shape[0]); print "nrows ", nrows
-    ncols = int(first.shape[1]); print "ncols ", ncols
+# def LoadTextureLayers(texturepath):
+#
+#     # Tell GDAL to throw Python exceptions, and register all drivers
+#     gdal.UseExceptions()
+#     gdal.AllRegister()
+#
+#     first1 = texturepath + os.listdir(texturepath)[0]
+#     print "first1 ", first1
+#
+#     first = gdal_array.LoadFile(first1, gdal.GA_ReadOnly)
+#
+#     nrows = int(first.shape[0]); print "nrows ", nrows
+#     ncols = int(first.shape[1]); print "ncols ", ncols
 
     # images = np.ndarray((nrows, ncols))
     #
@@ -52,7 +52,7 @@ def LoadTextureLayers(texturepath):
     # print "len(images) ", len(images)
 
 
-    return images
+    # return images
 
 
 
@@ -70,14 +70,157 @@ def LoadTextureLayers(texturepath):
 
 
 #-------------------------------------------------------------------------------
-def ClipTextureLayers(texturepath, lrY, ulY, lrX, ulX):
+# def ClipTextureLayers(texturepath, lrY, ulY, lrX, ulX):
+#     texturelist = ListTextureLayers(str(texturepath))
+#
+#     texturearray = createTextureArray(texturepath)
+#
+#     n = len(texturelist)
+#     clip = np.empty((n, lrY - ulY, lrX - ulX))
+#     for i in len(texturelist):
+#         clip[i] = texturearray[i]
+#
+#     return clip
+
+#-------------------------------------------------------------------------------
+
+# texturepath = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/texture_sample/"
+# orthopath = '/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/Mosaic/Mosaic.tif'
+
+
+def createTextureArray(texturepath, orthopath):
     texturelist = ListTextureLayers(texturepath)
 
-    texturearray = LoadTextureLayers(texturepath)
+    ortho = gdal.Open(orthopath)
+    XOriginal = ortho.RasterXSize
+    YOriginal = ortho.RasterYSize
+    shpOriginal = [YOriginal, XOriginal]
+    print shpOriginal
+    projection = ortho.GetProjection()
+    geotrans = ortho.GetGeoTransform()
 
-    n = len(texturelist)
-    clip = np.empty((n, lrY - ulY, lrX - ulX))
-    for i in len(texturelist):
-        clip[i] = texturearray[i]
+    imgOriginal = gdal.GetDriverByName('MEM').Create('texturesmem.tif', \
+                                                             XOriginal, \
+                                                             YOriginal, \
+                                                             4 + len(texturelist), \
+                                                             gdal.GDT_UInt16)
 
-    return clip
+    #add RGBNIR layers
+    print "Reading Mosaic"
+    imgOriginal.GetRasterBand(1).WriteArray(ortho.GetRasterBand(1).ReadAsArray())
+    ortho.FlushCache()
+    imgOriginal.GetRasterBand(2).WriteArray(ortho.GetRasterBand(2).ReadAsArray())
+    ortho.FlushCache()
+    imgOriginal.GetRasterBand(3).WriteArray(ortho.GetRasterBand(3).ReadAsArray())
+    ortho.FlushCache()
+    imgOriginal.GetRasterBand(4).WriteArray(ortho.GetRasterBand(4).ReadAsArray())
+    ortho.FlushCache()
+    ortho = None #free the memory
+
+    for i in range(len(texturelist)):
+
+        print "Reading " + str(texturelist[i])
+        texture = gdal.Open(texturepath + str(texturelist[i]))
+        imgOriginal.GetRasterBand(i + 5).WriteArray((texture.GetRasterBand(1).ReadAsArray()).astype('uint16'))
+        texture.FlushCache()
+        texture = None
+
+    #imgOriginal = np.concatenate(imgarray.T) #Transpose because of gdal
+    imgOriginal.SetGeoTransform(geotrans)
+    imgOriginal.SetProjection(projection)
+
+
+    return imgOriginal, shpOriginal
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
