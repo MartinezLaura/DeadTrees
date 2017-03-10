@@ -14,7 +14,7 @@ field = 'zona' # field in the shapefile where to read the classes
 # are referred
 rasterPath = '/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/Mosaic/Mosaic.tif'
 # The following is a shapefile with polygons representing the various classes
-shapePath = '/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/Features/Mosaic4-1.shp'
+shapePath = '/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/Features/Mosaic5.shp'
 INX = False # Classification based on only 4 bands
 
 
@@ -23,7 +23,7 @@ def init(field, rasterPath, shapePath, INX):
     Create the initialization file (clip)
     '''
 
-    pickleclip = "clipfeat-4" # name of the clip
+    pickleclip = "clipfeat-5" # name of the clip
 
     feat, nPixels = ObtainPixelsfromShape(field, \
                                           rasterPath, \
