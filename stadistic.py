@@ -17,94 +17,25 @@ import matplotlib.pyplot as plt
 
 
 feat = defaultdict(list)
-field = 'zona' # field in the shapefile where to read the classes
-# The following is a shapefile with polygons representing the various classes
-shapePath = '/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/Features/Mosaic4-1.shp'
-textpath= '/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/texture_training/'
 
-INX = False # Classification based on only 4 bands
+# Use this to calculate the numbers to put in graph in presentation 2 page 18
+with open('pickle/clip/clipfeat-5-text.pickle', 'rb') as handle:
+	Mylist = pickle.load(handle)
 
+feat = Mylist[0]
+print feat.keys()
 
-
-
-#----------------------------------------------------------------------
-
-def myboxplot(title, data, median, deviation, categories):
-
-    path = "/home/v-user/shared/Documents/Documents/CANHEMON/texture_stats/"
-
-    fig = plt.figure()
-
-    plt.boxplot(data, notch = True)
-    # plt.xticks([1, 2, 3, 4], categories)
-    plt.xticks([1, 2, 3, 4], ["Dead Tree", "Soil", "Healthy Tree", "Shadow"])
-    plt.title(title)
-
-    fig.savefig(path + title + ".png")
-
-    # plt.show()
+##Calculo de las desviaciones y medias
+temp = defaultdict(list).fromkeys(feat)
 
 
-
-#----------------------------------------------------------------------
-
-if __name__ == "__main__":
-
-    for file in os.listdir(textpath):
-        if file.endswith(".tif"):
-            file = os.path.splitext(file)[0]
-            print file
-            # init_texture(field, textpath + str(file)+ ".tif", shapePath, INX, file)
-
-            # file = "text_training_mosaic_b1_ASM"
-
-            with open('pickle/clip/' + str(file) + '.pickle', 'rb') as handle:
-            	Mylist = pickle.load(handle)
-
-            feat = Mylist[0]
-            print "feat.keys()", feat.keys()
-
-            temp = defaultdict(list).fromkeys(feat)
-            # print 'temp:', temp
-            categories = []
-            median = []
-            deviation = []
-            data = []
-
-            for key, value in feat.iteritems():
-
-                texturefile = str(file)
-                temp[str(key)] = np.concatenate(value)
-                element = [texturefile, key, value, temp[str(key)]]
-
-                print "Texture file: ", texturefile
-                print "Category: ", key
-                categories.append(key)
-                print "Median value: ", np.median(temp[str(key)])
-                median.append(np.median(temp[str(key)]))
-                print "Deviation: ", np.std(temp[str(key)])
-                a = np.std(temp[str(key)])
-                deviation.append((-a, a))
-
-                data.append(temp[str(key)])
-
-
-            print deviation
-            myboxplot(file, data, median, deviation, categories)
-
-
-
-
-
-                # print "---------Texture used" + str(file) + "----------"
-                # print "---------Classification type " + str(key) + "----------"
-                # deviation = np.std(temp[str(key)] , axis = 0)
-                # mean = np.mean(temp[str(key)] , axis = 0)
-                # print "deviation", deviation
-                # print "mean", mean
-
-
-
+for key, value in feat.iteritems():
+	temp[str(key)] = np.concatenate(value)
+	print "---------"+str(key)+"----------"
+	deviation = np.std(temp[str(key)] , axis = 0)
+	mean = np.mean(temp[str(key)] , axis = 0)
+	print deviation
+	print mean
 #----------------------------------------------------------------------
 # Use this to calculate the numbers to put in graph in presentation 2 page 18
 #### para el metodo
