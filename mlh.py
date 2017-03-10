@@ -28,6 +28,8 @@ from serialize import *
 import os
 import multiprocessing
 import ctypes
+from texture_common import *
+
 #import graficas
 
 
@@ -183,7 +185,8 @@ class ImageClassifier:
 
         save("pickle/model/" + str(MyName), self.model)
 
-    def ImageToClassify(self, imgClass, Bool, **kwargs):
+    # def ImageToClassify(self, imgClass, Bool, **kwargs):
+    def ImageToClassify(self, imgClass, Bool, *args):
         '''Prepares the images into a matrix, that has each layer as a column,
         and the rows are the pixels.
         imgClass is the image to classify (orthophoto)
@@ -191,10 +194,9 @@ class ImageClassifier:
         Bool = True takes all the other layers, for example indexes, texture etc
         '''
         print "Reading " + imgClass
-        imgarray = gdalnumeric.LoadFile(imgClass)
-        self.imgOriginal = np.concatenate(imgarray.T) #Transpose because of gdal
-        img = gdal.Open(imgClass)
-        self.shpOriginal = imgarray.shape #this is to reshape it back
+        #imgarray = gdalnumeric.LoadFile(imgClass)
+
+        #self.shpOriginal = imgarray.shape #this is to reshape it back
 
         if Bool == True:
             #   imgaux = img.ReadAsArray()
@@ -207,56 +209,38 @@ class ImageClassifier:
             # if you add new layers, add them here
 
 
-            if kwargs is not None:
-                for key, value in kwargs.iteritems():
-                    print "%s == %s" % (key, value)
+            # if kwargs is not None:
+            #     for key, value in kwargs.iteritems():
+            #         print "%s == %s" % (key, value)
+            #
+            #     print "length", len(kwargs)
+            # else:
+            #     print "no kwargs"
+            #
+            texturepath = args[0]
+            print texturepath
+            img, self.shpOriginal = createTextureArray(texturepath, imgClass)
+            print "type(img) ", type(img)
+            print "self.shpOriginal ", self.shpOriginal
 
-                print "length", len(kwargs)
-            else:
-                print "no kwargs"
+        else:
+            img = gdal.Open(imgClass)
+            print "type(img) else", type(img)
+            XOriginal = img.RasterXSize
+            YOriginal = img.RasterYSize
+            self.shpOriginal = [YOriginal, XOriginal]
 
-            # create dataset in memory
-            self.imgOriginal = gdal.GetDriverByName('MEM').Create('texturelist.tif', \
-                                                             imgarray.shape[2], \
-                                                             imgarray.shape[1], \
-                                                             5, \
-                                                             gdal.GDT_UInt16)
-
-
-            # create dataset in memory
-            self.imgOriginal = gdal.GetDriverByName('MEM').Create('newbands.tif', \
-                                                             imgarray.shape[2], \
-                                                             imgarray.shape[1], \
-                                                             5, \
-                                                             gdal.GDT_UInt16)
-
-            self.imgOriginal.GetRasterBand(1).WriteArray(((((imgaaux[3] - imgaaux[0]) \
-                                                        / (imgaaux[3] + imgaaux[0])) \
-                                                        + 1) * 127.5).astype(int)) # ndvi
-
-            self.imgOriginal.GetRasterBand(2).WriteArray(((((imgaaux[1] - imgaaux[0]) \
-                                                        / (imgaaux[1] + imgaaux[0])) \
-                                                        + 1) * 127.5).astype(int)) # gr
-
-            self.imgOriginal.GetRasterBand(3).WriteArray((((imgaaux[1] - imgaaux[2]) \
-                                                       / (imgaaux[1] + imgaaux[2]) \
-                                                       + 1) * 127.5).astype(int)) # bg
-
-            self.imgOriginal.GetRasterBand(4).WriteArray((((imgaaux[0] - imgaaux[2]) \
-                                                       / (imgaaux[0] + imgaaux[2]) \
-                                                       + 1) * 127.5).astype(int)) #br
-
-            self.imgOriginal.GetRasterBand(5).WriteArray((((imgaaux[3] - imgaaux[1]) \
-                                                       / (imgaaux[3] + imgaaux[1]) \
-                                                       + 1) * 127.5).astype(int)) #nirg
-
-            self.imgOriginal = imgOriginal.ReadAsArray()
-            self.shpOriginal = imgOriginal.shape
-            self.imgOriginal = np.concatenate(imgOriginal.T)
-
+        imgarray = img.ReadAsArray()
+        print "type(imgarray)", type(imgarray)
         self.projection = img.GetProjection()
         self.geotrans = img.GetGeoTransform()
-        print "self.imgOriginal", self.imgOriginal
+        self.imgOriginal = np.concatenate(imgarray.T) #Transpose because of gdal
+        imgarray = None
+
+        # self.projection = self.imgOriginal.GetProjection()
+        # self.geotrans = self.imgOriginal.GetGeoTransform()
+
+        #print "self.imgOriginal", self.imgOriginal
 
 
     def Classify(self):
@@ -316,7 +300,7 @@ class ImageClassifier:
 
         #give the original shape to the img in order to save it
         shared_array = np.ctypeslib.as_array(shared_array_base.get_obj())
-        self.imgClass = shared_array.reshape((self.shpOriginal[2], self.shpOriginal[1]))
+        self.imgClass = shared_array.reshape((self.shpOriginal[1], self.shpOriginal[0]))
         #shared_array = shared_array.reshape((self.shpOriginal[2],self.shpOriginal[1]))
         predicted = None
         shared_array_base = None
