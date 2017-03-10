@@ -14,7 +14,7 @@ from poligonize import *
 # orthoPath is the path to all ortophotos, whereas rasterPath was only the training set
 #orthoPath = "/home/v-user/canhemon/H03_CANHEMON/Imagery/Portugal/DMC/ortophotos_05022016/"
 orthoPath  = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/ortho/"
-resultPath = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/results/"
+resultPath = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/results_clipfeat5/"
 
 feat = defaultdict(list)
 todo = []
