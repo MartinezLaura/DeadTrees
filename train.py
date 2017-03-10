@@ -16,7 +16,7 @@ picklemodel = "modelKNN" # name
 
 # here you can put None to create a new pickle, or the name of an existing pickle
 # For example: the pickle created by initialize.py
-pickleclip  = "clipfeat-4"
+pickleclip  = "clipfeat-5-text"
 
 layer = 4 # 4 bands
 Classifier = ImageClassifier(modeltype = 2, \
@@ -26,6 +26,7 @@ Classifier = ImageClassifier(modeltype = 2, \
 Mylist = read("pickle" + os.sep + "clip" + os.sep + pickleclip)
 feat = Mylist[0]
 nPixels = Mylist[1]
+print "nPixels", nPixels
 
 # if picklemodel == None:
 #     MyName = pickleclip + "model"
