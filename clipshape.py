@@ -58,30 +58,6 @@ def imageToArray(i):
     a.shape = i.im.size[1], i.im.size[0]
     return a
 
-def NewBands(clipFeat, lrY, ulY, lrX, ulX):
-    # #new indx create new layer
-    # clip = np.empty((4, lrY - ulY, lrX - ulX))
-    # clip[0] = clipFeat[0].astype(np.uint8)
-    # ndvi = (((clipFeat[3]-clipFeat[0]) / (clipFeat[3]+clipFeat[0]))+1)*127.5
-    # clip[1] = ndvi.astype(np.uint8)
-    # clip[2] = clipFeat[2].astype(np.uint8)
-    # nirg = ((clipFeat[3]-clipFeat[1]) / (clipFeat[3]+clipFeat[1])+1)*127.5
-    # clip[3] = nirg.astype(np.uint8)
-
-    #regular ind
-    clip = np.empty((5, lrY - ulY, lrX - ulX))
-    ndvi = (((clipFeat[3] - clipFeat[0]) / (clipFeat[3] + clipFeat[0])) + 1) * 127.5
-    clip[0] = ndvi.astype(np.uint8)
-    gr   = (((clipFeat[1] - clipFeat[0]) / (clipFeat[1] + clipFeat[0])) + 1) * 127.5
-    clip[1] = gr.astype(np.uint8)
-    bg   =  ((clipFeat[1] - clipFeat[2]) / (clipFeat[1] + clipFeat[2])  + 1) * 127.5
-    clip[2] = bg.astype(np.uint8)
-    br   =  ((clipFeat[0] - clipFeat[2]) / (clipFeat[0] + clipFeat[2])  + 1) * 127.5
-    clip[3] = br.astype(np.uint8)
-    nirg =  ((clipFeat[3] - clipFeat[1]) / (clipFeat[3] + clipFeat[1])  + 1) * 127.5
-    clip[4] = nirg.astype(np.uint8)
-
-    return clip
 
 def ReadClipArray(lrY, ulY, lrX, ulX, img):
     clip = np.empty((img.RasterCount, lrY - ulY, lrX - ulX))
@@ -103,13 +79,22 @@ def ObtainPixelsfromShape(field, rasterPath, shapePath, INX, *args):
     print "Starting clip...."
     start = time.time()
 
-    img = gdal.Open(rasterPath)
+    if args:
+        texture_train_Path = args[0]
+        print texture_train_Path
+        img, textArrayShp = createTextureArray(texture_train_Path, rasterPath)
+
+    else:
+        #print"Indexes = False"
+        img = gdal.Open(rasterPath)
+
+
 
     geoTrans = img.GetGeoTransform()
     geoTransaux = img.GetGeoTransform()
     proj = img.GetProjection()
-    imgarrayaux = img.ReadAsArray().shape
-    print "img.ReadAsArray().shape", img.ReadAsArray().shape
+    # imgarrayaux = img.ReadAsArray().shape
+    # print "img.ReadAsArray().shape", img.ReadAsArray().shape
 
 
     #open shapefile
@@ -132,33 +117,10 @@ def ObtainPixelsfromShape(field, rasterPath, shapePath, INX, *args):
         pxWidth  = int(lrX - ulX)
         pxHeight = int(lrY - ulY)
 
-        # if INX == True:
-        #     clip = ReadClipArray(lrY, ulY, lrX, ulX, img)
-        #     clip = NewBands(clip, lrY, ulY, lrX, ulX)
-
-        if args:
-            texture_train_Path = args[0]
-            print texture_train_Path
-            textureArray = LoadTextureLayers(texture_train_Path)
-            clip = ReadClipArray(lrY, ulY, lrX, ulX, textureArray)
-            # clip = ClipTextureLayers(args, clip, lrY, ulY, lrX, ulX)
 
 
-        else:
-            #print"Indexes = False"
-            clip = ReadClipArray(lrY, ulY, lrX, ulX, img)
+        clip = ReadClipArray(lrY, ulY, lrX, ulX, img)
 
-
-        # print clip[0]
-        #print"Paso 2"
-        #Image and shape to return in the same shape as it needs the classificator algorithms
-        # imgReturn = np.concatenate(imgaux.T)
-        # shapeReturn = imgaux.shape
-        #imgReturn = np.concatenate(imgaux.T)
-        # shapeReturn = img.ReadAsArray().shape
-
-        # clip = imgarray[:, ulY:lrY, ulX:lrX]
-        # print clip[0]
 
 
         #EDIT: create pixel offset to pass to new image Projection info
