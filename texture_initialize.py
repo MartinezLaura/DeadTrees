@@ -14,9 +14,9 @@ field = "zona" # field in the shapefile where to read the classes
 # are referred
 rasterPath  = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/Mosaic/Mosaic.tif"
 # The following is a shapefile with polygons representing the various classes
-shapePath   = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/Features/Mosaic4-1.shp"
+shapePath   = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/Features/mosaic5.shp"
 # Path to the texture layers of the training set
-texture_train_Path = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/texture_training/"
+texture_train_Path = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/texture_sample/"
 
 INX = False
 
@@ -30,7 +30,8 @@ def init_texture(field, rasterPath, shapePath, INX, name):
     feat, nPixels = ObtainPixelsfromShape(field, \
                                           rasterPath, \
                                           shapePath, \
-                                          INX)
+                                          INX,\
+                                          texture_train_Path)
     # INX can be false. If True, uses additional layers.
     Mylist = [feat, nPixels] #pickle wants a list as input
 
