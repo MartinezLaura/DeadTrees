@@ -21,7 +21,6 @@ from sklearn.learning_curve import learning_curve
 import sys
 from sklearn import cross_validation
 from sklearn.cross_validation import KFold
-# import matplotlib.pyplot as plt
 from osgeo import gdal, gdalnumeric, ogr, osr
 from sklearn.cross_validation import StratifiedKFold
 from serialize import *
@@ -30,7 +29,6 @@ import multiprocessing
 import ctypes
 from texture_common import *
 
-#import graficas
 
 
 shared_array = None
@@ -38,7 +36,6 @@ shared_array = None
 def init(shared_array_base, shape):
     global shared_array
     shared_array = np.ctypeslib.as_array(shared_array_base.get_obj())
-    #print "shape:"+str(shape)
     shared_array = shared_array.reshape(shape)
     #shared_array = shared_array.astype(np.int32)
 
@@ -68,8 +65,9 @@ class ImageClassifier:
         self.shpOriginal = None
         self.Threads = Threads
         self.model = model
-        #if not self.FromFile:
+
         if self.model == None:
+
             if modeltype == 1:
                 self.model = SVC(C = 1.0, \
                        cache_size = 200, \
@@ -162,7 +160,13 @@ class ImageClassifier:
         # # #                                    test_size=0.1, random_state=0)
         # test_size is the percentage of the traning set
         # # # estimator = KNeighborsClassifier()
-        # # # graficas.plot_learning_curve(estimator, title, X, y, ylim=(0.7, 1.01), cv=cv, n_jobs=8)
+        # # # graficas.plot_learning_curve(estimator, \
+                                        #    title, \
+                                        #    X, \
+                                        #    y, \
+                                        #    ylim = (0.7, 1.01), \
+                                        #    cv = cv, \
+                                        #    n_jobs = 8)
         # # # plt.show()
 
 
@@ -179,13 +183,11 @@ class ImageClassifier:
         # creates the model directory if it doesn't exist
         if not os.path.exists("pickle/model/"):
             os.makedirs("pickle/model/")
-        # print type(self.model)
-        # print self.model
-        #MyList = [self.model]
+
 
         save("pickle/model/" + str(MyName), self.model)
 
-    # def ImageToClassify(self, imgClass, Bool, **kwargs):
+
     def ImageToClassify(self, imgClass, Bool, *args):
         '''Prepares the images into a matrix, that has each layer as a column,
         and the rows are the pixels.
@@ -194,9 +196,7 @@ class ImageClassifier:
         Bool = True takes all the other layers, for example indexes, texture etc
         '''
         print "Reading " + imgClass
-        #imgarray = gdalnumeric.LoadFile(imgClass)
 
-        #self.shpOriginal = imgarray.shape #this is to reshape it back
 
         if Bool == True:
             #   imgaux = img.ReadAsArray()
@@ -209,14 +209,6 @@ class ImageClassifier:
             # if you add new layers, add them here
 
 
-            # if kwargs is not None:
-            #     for key, value in kwargs.iteritems():
-            #         print "%s == %s" % (key, value)
-            #
-            #     print "length", len(kwargs)
-            # else:
-            #     print "no kwargs"
-            #
             texturepath = args[0]
             print texturepath
             img, self.shpOriginal = createTextureArray(texturepath, imgClass)
@@ -248,30 +240,32 @@ class ImageClassifier:
         #shared_array = np.ctypeslib.as_array(shared_array_base.get_obj())
         #shared_array = shared_array.reshape(self.imgOriginal.shape[0])
 
-        shared_array_base = multiprocessing.Array(ctypes.c_int, self.imgOriginal.shape[0])
+        shared_array_base = multiprocessing.Array(ctypes.c_int, \
+                                                  self.imgOriginal.shape[0])
 
         pool = multiprocessing.Pool(processes = self.Threads, \
                                 initializer = init, \
-                                initargs = (shared_array_base, self.imgOriginal.shape[0]))
+                                initargs = (shared_array_base, \
+                                            self.imgOriginal.shape[0]))
 
 
-        #counter = Value('i', 0)
-        #p = Pool()
+
         print "Starting classification...."
         start = time.time()
         # make predictions
         print self.shpOriginal
         print "Total pixels:" + str(self.imgOriginal.shape[0])
-        #predicted = np.empty(self.imgOriginal.shape[0],dtype=int)
+        # predicted = np.empty(self.imgOriginal.shape[0], dtype = int)
 
         size = 5000
         #size of the matrix
         # off is the positions of the pixels
         # splits are the cuts
-        splits = np.array_split(self.imgOriginal, int(self.imgOriginal.shape[0] / size))
+        splits = np.array_split(self.imgOriginal, \
+        int(self.imgOriginal.shape[0] / size))
 
         # print "len(splits): ", len(splits)
-        #print np.arange(0,self.imgOriginal.shape[0],size)
+        # print np.arange(0, self.imgOriginal.shape[0], size)
         off = []
         b = 0
         # here we save the positions
@@ -300,7 +294,8 @@ class ImageClassifier:
 
         #give the original shape to the img in order to save it
         shared_array = np.ctypeslib.as_array(shared_array_base.get_obj())
-        self.imgClass = shared_array.reshape((self.shpOriginal[1], self.shpOriginal[0]))
+        self.imgClass = shared_array.reshape((self.shpOriginal[1], \
+                                              self.shpOriginal[0]))
         #shared_array = shared_array.reshape((self.shpOriginal[2],self.shpOriginal[1]))
         predicted = None
         shared_array_base = None
@@ -311,7 +306,9 @@ class ImageClassifier:
 
 
     # Save the img in the selected folder with the selected Name
-    # projection and geotrans-->  in order to save the geographic position of the classification image,
+    # projection and geotrans-->  in order to save the geographic position of
+    # the classification image
+
     def SaveImg(self, imgSavePath):
         driver = gdal.GetDriverByName('GTiff')
         #tener en cuenta perdida lzw
@@ -333,9 +330,12 @@ class ImageClassifier:
         return self.imgClass
 
     def Metrics(self,arrTrue, arrPredict, labels):
-        cm = metrics.confusion_matrix(arrTrue, arrPredict, labels = map(int,labels))
+        cm = metrics.confusion_matrix(arrTrue, \
+                                      arrPredict, \
+                                      labels = map(int,labels))
         rep = metrics.classification_report(
-            arrTrue,arrPredict)
+                                      arrTrue, \
+                                      arrPredict)
         print rep
         print cm
         # return cm,rep
@@ -345,7 +345,8 @@ class ImageClassifier:
         averages = np.empty(shape = (1, 3))
         #kf = KFold(len(y), n_folds=3)
         skf = StratifiedKFold(y, 10)
-        #rs = cross_validation.ShuffleSplit(len(y), n_iter=100,test_size=.2, random_state=0)
+        #rs = cross_validation.ShuffleSplit(len(y), n_iter=100, test_size=.2, random_state=0)
+
         for train, test in skf:
             inx = 0
             X_train, X_test = X[train], X[test]
