@@ -8,7 +8,7 @@ __email__ = "lmartisa@gmail.com, dileomargherita@gmail.com"
 from mlh import *
 from serialize import *
 from movingwindow import *
-from poligonize import *
+
 import re
 
 # orthoPath is the path to all ortophotos
@@ -30,29 +30,14 @@ Classifier = ImageClassifier(modeltype = 2, \
                              picklemodel = picklemodel, \
                              model = model)
 
-# Loops through all orthophotos in the folder
-# builds a dict with name of texture file as key, and location as value
-# this dict will be passed to the classifier in order to incorporate the texture layers
-# for file in os.listdir(orthoPath):
-#     if file.endswith(".tif"):
-#         file = os.path.splitext(file)[0]
-#         file1 = re.sub("-", "_", file)
-#         texturelist = []
-#         dict_text = {}
-#         for item in os.listdir(texturepath):
-#             myregex = "text_" + file1
-#             if item.startswith(myregex) :
-#                 item1 = item.split(".")[0]
-#                 texturelist.append(item1)
-#                 dict_text.setdefault(item1, []).append(orthoPath + item)
-#         # print dict_text
+
 
 
 for file in os.listdir(orthoPath):
     if file.endswith(".tif"):
         file = os.path.splitext(file)[0]
 
-        # Classifier.ImageToClassify(orthoPath + str(file) + ".tif", True, **dict_text)
+
         Classifier.ImageToClassify(orthoPath + str(file) + ".tif", True, texturepath)
 
         Classifier.Classify()
