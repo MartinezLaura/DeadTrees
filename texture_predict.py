@@ -8,6 +8,7 @@ __email__ = "lmartisa@gmail.com, dileomargherita@gmail.com"
 from mlh import *
 from serialize import *
 from movingwindow import *
+import os
 
 import re
 
@@ -15,8 +16,9 @@ import re
 # resultPath is the folder where you want to find the results
 # texturePath is the path where the texture layers are
 orthoPath  = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/ortho/"
-resultPath = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/results_texture/"
 texturepath = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/texture/"
+resultPath = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/results_texture/"
+
 
 feat = defaultdict(list)
 todo = []
@@ -52,7 +54,7 @@ for file in os.listdir(orthoPath):
 
         print "imgResult", imgResult
 
-        # TODO: fix poligonize function
+
         # poligonize(imgResult, resultPath + str(file + "_smooth.tif"))
         # poligonize(resultPath, file)
 
@@ -63,23 +65,5 @@ for file in os.listdir(orthoPath):
 
 
         # True because added texture layers
-        #
-        # Classifier.Classify()
-        # Classifier.SaveImg(resultPath + str(file) + "_classified")
-        #
+
         # # break # uncomment here if you want to see the result on 1 tile
-        #
-        # imgResult = moviw(Classifier.GetClassified(), \
-        #                   resultPath + str(file) + "_smooth", \
-        #                   Classifier.GetProjection(), \
-        #                   Classifier.GetGeotrans())
-        #
-        # print "imgResult", imgResult
-        #
-        # # TODO: fix poligonize function
-        # # poligonize(imgResult, resultPath + str(file + "_smooth.tif"))
-        # # poligonize(resultPath, file)
-        #
-        # count += 1
-        # if count > 4:
-        #     break
