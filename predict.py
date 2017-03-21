@@ -8,11 +8,10 @@ __email__ = "lmartisa@gmail.com, dileomargherita@gmail.com"
 from mlh import *
 from serialize import *
 from movingwindow import *
-from poligonize import *
+# from poligonize import *
 #from multiprocessing import Pool
 
 # orthoPath is the path to all ortophotos, whereas rasterPath was only the training set
-#orthoPath = "/home/v-user/canhemon/H03_CANHEMON/Imagery/Portugal/DMC/ortophotos_05022016/"
 orthoPath  = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/ortho/"
 resultPath = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/results_clipfeat5/"
 
@@ -52,7 +51,7 @@ for file in os.listdir(orthoPath):
 
         print "imgResult", imgResult
 
-        # TODO: fix poligonize function
+
         # poligonize(imgResult, resultPath + str(file + "_smooth.tif"))
         # poligonize(resultPath, file)
 
