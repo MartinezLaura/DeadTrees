@@ -49,6 +49,7 @@ def ClassifyMap(a):
 
     #print str(p)+" "+str(len(s)),
     shared_array[p : (p + len(s))] = m.predict(s).astype(type(shared_array))
+    # print "shared_array[p : (p + len(s))]", shared_array[p : (p + len(s))]
     #shared_array[p:p+len(s)] = np.empty(len(s))
     #start2 = time.time()
     #print str(p)+" "+str(time.time() - start2) + "seg."
@@ -106,7 +107,7 @@ class ImageClassifier:
 
 
             else:
-                raise ValueError('NameError: no found this classification method')
+                raise ValueError('NameError: classification method not found')
 
 
     # else:
@@ -144,7 +145,9 @@ class ImageClassifier:
                 X[offset : offset + j.shape[0], :] = j
                 y[offset : offset + j.shape[0]] = i
                 offset+=j.shape[0]
-        print "X.shape" , X.shape
+                # print "j.shape[0]", j.shape[0]
+                # print "offset", offset
+        # print "X.shape" , X.shape
         # To assign the w
         #  	# 	if i == '0':
         #  	# 		w[offset:offset+j.shape[0]] = 2000000
@@ -210,20 +213,20 @@ class ImageClassifier:
 
 
             texturepath = args[0]
-            print texturepath
+            # print texturepath
             img, self.shpOriginal = createTextureArray(texturepath, imgClass)
-            print "type(img) ", type(img)
-            print "self.shpOriginal ", self.shpOriginal
+            # print "type(img) ", type(img)
+            # print "self.shpOriginal ", self.shpOriginal
 
         else:
             img = gdal.Open(imgClass)
-            print "type(img) else", type(img)
+            # print "type(img) else", type(img)
             XOriginal = img.RasterXSize
             YOriginal = img.RasterYSize
             self.shpOriginal = [YOriginal, XOriginal]
 
         imgarray = img.ReadAsArray()
-        print "type(imgarray)", type(imgarray)
+        # print "type(imgarray)", type(imgarray)
         self.projection = img.GetProjection()
         self.geotrans = img.GetGeoTransform()
         self.imgOriginal = np.concatenate(imgarray.T) #Transpose because of gdal
@@ -232,7 +235,7 @@ class ImageClassifier:
         # self.projection = self.imgOriginal.GetProjection()
         # self.geotrans = self.imgOriginal.GetGeoTransform()
 
-        #print "self.imgOriginal", self.imgOriginal
+        # print "self.imgOriginal", self.imgOriginal
 
 
     def Classify(self):
@@ -244,17 +247,18 @@ class ImageClassifier:
                                                   self.imgOriginal.shape[0])
 
         pool = multiprocessing.Pool(processes = self.Threads, \
-                                initializer = init, \
-                                initargs = (shared_array_base, \
-                                            self.imgOriginal.shape[0]))
+                                    initializer = init, \
+                                    initargs = (shared_array_base, \
+                                    self.imgOriginal.shape[0]))
 
 
 
         print "Starting classification...."
         start = time.time()
         # make predictions
-        print self.shpOriginal
+        # print self.shpOriginal
         print "Total pixels:" + str(self.imgOriginal.shape[0])
+
         # predicted = np.empty(self.imgOriginal.shape[0], dtype = int)
 
         size = 5000
@@ -262,7 +266,7 @@ class ImageClassifier:
         # off is the positions of the pixels
         # splits are the cuts
         splits = np.array_split(self.imgOriginal, \
-        int(self.imgOriginal.shape[0] / size))
+                            int(self.imgOriginal.shape[0] / size))
 
         # print "len(splits): ", len(splits)
         # print np.arange(0, self.imgOriginal.shape[0], size)
@@ -275,18 +279,13 @@ class ImageClassifier:
         a = zip(splits, off, [self.model] * len(splits))
         self.imgOriginal = None
 
+        # print "off" , off
+
 
         print "Pixels groups: " + str(len(a)) + " of size: " + str(size)
+        # print "a", a
 
         pool.map(ClassifyMap, a)
-
-        #for p,s in zip(pos,splited):
-          #start2 = time.time()
-          #print str(p)+" "+str(len(s)),
-          #predicted[p:p+len(s)] = self.model.predict(s)
-        #start2 = time.time()
-          #print str(p)+" "+str(len(s)),
-        #predicted = self.model.predict(self.imgOriginal)
 
         print "Time predicting model: "
         print time.strftime('%l:%M%p %Z on %b %d, %Y')
@@ -296,7 +295,7 @@ class ImageClassifier:
         shared_array = np.ctypeslib.as_array(shared_array_base.get_obj())
         self.imgClass = shared_array.reshape((self.shpOriginal[1], \
                                               self.shpOriginal[0]))
-        #shared_array = shared_array.reshape((self.shpOriginal[2],self.shpOriginal[1]))
+
         predicted = None
         shared_array_base = None
         shared_array = None
@@ -336,8 +335,8 @@ class ImageClassifier:
         rep = metrics.classification_report(
                                       arrTrue, \
                                       arrPredict)
-        print rep
-        print cm
+        # print rep
+        # print cm
         # return cm,rep
 
     def CrossValidation(self, X, y, model, labels):
@@ -357,8 +356,8 @@ class ImageClassifier:
             score = predicted.score(X_test, y_test)
             predicted = cross_validation.cross_val_predict(model, X_train, y_train)
             metricModel = metrics.accuracy_score(y_train, predicted)
-            print score
-            print metricModel
+            # print score
+            # print metricModel
             scores[inx] = score
             averages[inx] = metricModel
             inx += 1
