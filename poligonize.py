@@ -14,8 +14,8 @@ import os
 import sys
 
 
-rasterpath = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/results_clipfeat5/"
-shapepath = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/results_clipfeat5/shape3/"
+rasterpath = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/results_texture/"
+shapepath = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/results_texture/shape/"
 
 
 
@@ -55,7 +55,8 @@ def polygonize(shapepath, file, rasterpath):
     src_ds.SetGeoTransform(geotrans)
 
     src_ds.SetProjection(projection)
-    gdal_array.BandWriteArray(src_ds.GetRasterBand(1),srcarray.T)
+    # gdal_array.BandWriteArray(src_ds.GetRasterBand(1), srcarray.T)
+    gdal_array.BandWriteArray(src_ds.GetRasterBand(1), srcarray)
 
     srcband = src_ds.GetRasterBand(1)
 
@@ -83,8 +84,8 @@ def polygonize(shapepath, file, rasterpath):
         feature.SetField("area", area)
         dst_layer.SetFeature(feature)
 
-
-        if (geom.GetArea() < 1) or (geom.GetArea() > 20):
+        # Filter per size
+        if (geom.GetArea() < 3) or (geom.GetArea() > 100):
             dst_layer.DeleteFeature(feature.GetFID())
 
 
