@@ -17,16 +17,14 @@ rasterPath  = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_t
 shapePath   = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/Features/mosaic5.shp"
 # Path to the texture layers of the training set
 texture_train_Path = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/texture_sample/"
-
 INX = False
+pickleclip = "clipfeat-5-text_1"
 
-
-def init_texture(field, rasterPath, shapePath, INX, name):
+def init_texture(field, rasterPath, shapePath, INX, texture_train_Path, pickleclip):
     '''
     Create the initialization file (clip)
     '''
 
-    pickleclip = name # name of the clip
     feat, nPixels = ObtainPixelsfromShape(field, \
                                           rasterPath, \
                                           shapePath, \
@@ -40,4 +38,4 @@ def init_texture(field, rasterPath, shapePath, INX, name):
         os.makedirs("pickle/clip/")
     save("pickle/clip/" + pickleclip, Mylist)
 
-# init(field, rasterPath, shapePath, INX, texture_train_Path)
+init_texture(field, rasterPath, shapePath, INX, texture_train_Path, pickleclip)
