@@ -16,7 +16,7 @@ picklemodel = "modelKNN" # name
 
 # here you can put None to create a new pickle, or the name of an existing pickle
 # For example: the pickle created by initialize.py
-pickleclip  = "clipfeat-5-text"
+pickleclip  = "clipfeat-5-text_1"
 layer = 6 # 4 bands + 2 texture layers
 
 #-------------------------------------------------------------------------------
