@@ -5,35 +5,31 @@ __email__ = "lmartisa@gmail.com, dileomargherita@gmail.com"
 
 
 
-from clipshape import *
+# from clipshape import *
 import itertools
 from mlh import *
 from collections import defaultdict
 import numpy as np
-from texture_initialize import *
-import matplotlib.pyplot as plt
-
-
 
 
 feat = defaultdict(list)
 
-# Use this to calculate the numbers to put in graph in presentation 2 page 18
-with open('pickle/clip/clipfeat-5-text.pickle', 'rb') as handle:
+
+with open('pickle/clip/clipfeat-5-text_1.pickle', 'rb') as handle:
 	Mylist = pickle.load(handle)
 
 feat = Mylist[0]
 print feat.keys()
 
-##Calculo de las desviaciones y medias
+##Calculate mean and st. dev.
 temp = defaultdict(list).fromkeys(feat)
 
 
 for key, value in feat.iteritems():
 	temp[str(key)] = np.concatenate(value)
-	print "---------"+str(key)+"----------"
-	deviation = np.std(temp[str(key)] , axis = 0)
-	mean = np.mean(temp[str(key)] , axis = 0)
+	print "---------" + str(key) + "----------"
+	deviation = np.std(temp[str(key)], axis = 0)
+	mean = np.mean(temp[str(key)], axis = 0)
 	print deviation
 	print mean
 #----------------------------------------------------------------------
