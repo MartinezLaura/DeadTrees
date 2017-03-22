@@ -32,15 +32,13 @@ Classifier = ImageClassifier(modeltype = 2, \
                              picklemodel = picklemodel, \
                              model = model)
 
-
-
-
 for file in os.listdir(orthoPath):
     if file.endswith(".tif"):
         file = os.path.splitext(file)[0]
 
 
         Classifier.ImageToClassify(orthoPath + str(file) + ".tif", True, texturepath)
+        # True because added texture layers
 
         Classifier.Classify()
         Classifier.SaveImg(resultPath + str(file) + "_classified")
@@ -54,16 +52,6 @@ for file in os.listdir(orthoPath):
 
         print "imgResult", imgResult
 
-
-        # poligonize(imgResult, resultPath + str(file + "_smooth.tif"))
-        # poligonize(resultPath, file)
-
         count += 1
         if count > 4:
             break
-
-
-
-        # True because added texture layers
-
-        # # break # uncomment here if you want to see the result on 1 tile
