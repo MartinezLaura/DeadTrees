@@ -13,8 +13,9 @@ import numpy as np
 from serialize import *
 from graficas import *
 
-pickleclip  = "clipfeat-5"
-nLayers = 4 #number of layers
+
+pickleclip  = "clipfeat-5new-text_calib"
+nLayers = 6 #number of layers
 
 
 # Use this to calculate the numbers to put in graph in presentation 2 page 18
@@ -48,6 +49,7 @@ def CrossValidation(X, y, model, labels):
 
     for train, test in skf:
         inx = 0
+        # X_test, y_test are the test set
         X_train, X_test = X[train], X[test]
         y_train, y_test = y[train], y[test]
         predicted = model.fit(X_train, y_train)
@@ -70,8 +72,8 @@ def CrossValidation(X, y, model, labels):
     score = np.average(scores)
     print "X_train : ", X_train
     print "y_train : ", y_train
-    print "Score : ", score
-    print "Metric Model : ", metricModel
+    print "Score Average Cross Validation : ", score
+    print "Model Accuracy : ", metricModel
     plot_learning_curve(model, "Learning Curve", X_train, y_train)
     plt.show()
     return metricModel, score
@@ -109,11 +111,13 @@ model = KNeighborsClassifier(n_neighbors = 5, \
 model.fit(X, y)
 cm, rep = Metrics(y, model.predict(X), sorted(feat.keys()))
 metricModel, score = CrossValidation(X, y, model, sorted(feat.keys()))
-print "---------cm--------------------"
+
+print "Evaluation for model: " + pickleclip
+print "---------Confusion Matrix--------------------"
 print cm
-print "---------rep-------------------"
+print "---------Classification Report-------------------"
 print rep
-print "---------metric model----------"
+print "---------Model Accuracy----------"
 print metricModel
-print "---------score-----------------"
+print "---------Score Average Cross Validation-----------------"
 print score
