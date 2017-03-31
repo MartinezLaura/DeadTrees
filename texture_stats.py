@@ -13,7 +13,10 @@ import numpy as np
 from texture_initialize import *
 import matplotlib.pyplot as plt
 
-
+'''
+This code is used to establish the variability expressed by each texture layer
+in each class
+'''
 
 
 feat = defaultdict(list)
