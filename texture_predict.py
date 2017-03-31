@@ -52,6 +52,6 @@ for file in os.listdir(orthoPath):
 
         print "imgResult", imgResult
 
-        count += 1
-        if count > 4:
-            break
+        # count += 1
+        # if count > 4:
+        #     break
