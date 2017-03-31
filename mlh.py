@@ -4,15 +4,15 @@ __version__ = "1.0"
 __email__ = "lmartisa@gmail.com"
 
 
-
-from sklearn import datasets
-from sklearn import metrics
+#
+# from sklearn import datasets
+# from sklearn import metrics
 from sklearn import linear_model, datasets, metrics
 from sklearn.cross_validation import train_test_split
 from sklearn.pipeline import Pipeline
-from sklearn.svm import SVC
+# from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.neighbors import RadiusNeighborsClassifier
+# from sklearn.neighbors import RadiusNeighborsClassifier
 from sklearn.externals.six import StringIO
 import numpy as np
 from sklearn import tree
