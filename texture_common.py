@@ -13,6 +13,12 @@ import time
 
 #-------------------------------------------------------------------------------
 def ListTextureLayers(texturepath):
+    '''This function lists all the texture layers present in the folder
+    regardless of their name. This means that for the time being this code is
+    suitable for performing the prediction on one tile at time. If in future
+    this code has to be repurposed, you need to pass to this function the file
+    root name, and here you have to match it with the texture name. 
+    '''
     texturelist = []
     for file in os.listdir(str(texturepath)):
         if file.endswith(".tif"):
