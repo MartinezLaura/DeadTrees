@@ -85,7 +85,7 @@ def polygonize(shapepath, file, rasterpath):
         dst_layer.SetFeature(feature)
 
         # Filter per size
-        if (geom.GetArea() < 3) or (geom.GetArea() > 100):
+        if (geom.GetArea() < 1) or (geom.GetArea() > 100):
             dst_layer.DeleteFeature(feature.GetFID())
 
 
@@ -110,4 +110,6 @@ def main(rasterpath, shapepath):
             print "Opening.. " + file + ".tif"
             polygonize(shapepath, file, rasterpath)
 
-main(rasterpath, shapepath)
+
+if __name__ == "__main__":
+    main(rasterpath, shapepath)
