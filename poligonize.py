@@ -6,110 +6,110 @@ __email__ = "lmartisa@gmail.com"
 
 from osgeo import gdal, ogr,osr
 import numpy as np
-import mlh
+#import mlh
 import time
-from movingwindow import *
+#from movingwindow import *
 from osgeo import gdal, gdalnumeric, ogr, osr,gdal_array
 import os
-# import sys
-# # this allows GDAL to throw Python Exceptions
-# gdal.UseExceptions()
+import sys
 
-# #
-# #  get raster datasource
-# #
-# src_ds = gdal.Open('MovingW/pt611000-4421000Feat425.tiff')
-# projection = src_ds.GetProjection()
-# geotrans = src_ds.GetGeoTransform()
-# if src_ds is None:
-#     print 'Unable to open %s' % src_filename
-#     sys.exit(1)
 
-# try:
-#     srcband = src_ds.GetRasterBand(1)
-# except RuntimeError, e:
-#     # for example, try GetRasterBand(10)
-#     print 'Band ( %i ) not found' % band_num
-#     print e
-#     sys.exit(1)
+rasterpath = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/results_texture/"
+shapepath = "/home/v-user/shared/Documents/Documents/CANHEMON/classification_tests/results_texture/shape/"
 
-# print "start"
 
-# srcarray = src_ds.ReadAsArray()
-# def poligonize(srcarray, path, shape,projection,geotrans):
-def poligonize(shape, file):
-    print "Starting Poligonize..."
+
+def GetRasterDataSource (name, rasterpath):
+
+    src_ds = gdal.Open(rasterpath + name + '.tif')
+    projection = src_ds.GetProjection()
+    geotrans = src_ds.GetGeoTransform()
+    XOriginal = src_ds.RasterXSize
+    YOriginal = src_ds.RasterYSize
+    shape = [YOriginal, XOriginal]
+
+    if src_ds is None:
+        print 'Unable to open %s' % src_filename
+        sys.exit(1)
+
+    try:
+        srcband = src_ds.GetRasterBand(1)
+    except RuntimeError, e:
+
+        print 'Band ( %i ) not found' % band_num
+        print e
+        sys.exit(1)
+    srcarray = src_ds.ReadAsArray()
+    return srcarray,projection,geotrans, shape
+
+
+def polygonize(shapepath, file, rasterpath):
+    srcarray,projection,geotrans, shape = GetRasterDataSource(file, rasterpath)
+    print "Start polygonizing.."
     start = time.time()
-    srcarray[srcarray>1] = 0
+    srcarray[srcarray > 1] = 0 #we are interested in the class 1, we put everything else to 0
     drv = gdal.GetDriverByName('MEM')
     srs = osr.SpatialReference()
-    #print type(projection)
-    #print projection
     srs.ImportFromWkt(projection)
-    src_ds  = drv.Create('',shape[2],shape[1],1,gdal.GDT_UInt16)
+    src_ds  = drv.Create('', shape[1], shape[0], 1, gdal.GDT_UInt16)
     src_ds.SetGeoTransform(geotrans)
-    dest_wkt = srs.ExportToWkt()
-    src_ds.SetProjection(dest_wkt)
-    gdal_array.BandWriteArray(src_ds.GetRasterBand(1),srcarray.T)
-    
-    
-    #mlh.SaveImg(srcarray,'ImgResult'+os.sep+'Poligon'+os.sep+path+'poligonize',projection,geotrans)
-    #src_ds = gdal.Open('ImgResult'+os.sep+'Poligon'+os.sep+path+'poligonize.tiff')
+
+    src_ds.SetProjection(projection)
+    # gdal_array.BandWriteArray(src_ds.GetRasterBand(1), srcarray.T)
+    gdal_array.BandWriteArray(src_ds.GetRasterBand(1), srcarray)
+
     srcband = src_ds.GetRasterBand(1)
 
     drv = ogr.GetDriverByName("ESRI Shapefile")
-    dst_ds = drv.CreateDataSource( 'shpResult'+os.sep+path + ".shp")
+    dst_ds = drv.CreateDataSource(shapepath + file + ".shp")
 
+    dst_layer = dst_ds.CreateLayer(shapepath + file, srs = srs)
+    new_field = ogr.FieldDefn("type", ogr.OFTInteger)
+    dst_layer.CreateField(new_field)
 
-    driver = ogr.GetDriverByName("ESRI Shapefile")
-    dataSource = driver.Open(shape, 1)
-    polylayer=dataSource.GetLayerByIndex(0)
-
-    print "++++++++++++++"
-    print polylayer.GetName()
-    print polylayer.GetFeatureCount()
-
-    newField = ogr.FieldDefn("caca", ogr.OFTInteger)
-    polylayer.CreateField(newField)
-    print"llego"
+    new_field = None
 
     new_field = ogr.FieldDefn("area", ogr.OFTReal)
-    new_field.SetWidth(32)
-    new_field.SetPrecision(2) #added line to set precision
-    polylayer.CreateField(new_field)
-    print"llego"
 
+    # new_field.SetWidth(32)
+    # new_field.SetPrecision(2) #added line to set precision (for floating point)
+    dst_layer.CreateField(new_field)
 
-    for feature in polylayer:
-        geom = feature.GetGeometryRef() 
-        area = geom.GetArea() 
+    gdal.Polygonize(srcband, srcband, dst_layer, 0, [], callback = None )
+    print "Number of features detected: ", dst_layer.GetFeatureCount()
+
+    for feature in dst_layer:
+        geom = feature.GetGeometryRef()
+        area = geom.GetArea()
         feature.SetField("area", area)
-        polylayer.SetFeature(feature)
+        dst_layer.SetFeature(feature)
 
-        print geom.GetArea()
-        # if (geom.GetArea()  < 0.5) or (geom.GetArea()  > 68):
-        #     polylayer.DeleteFeature(feature.GetFID())
+        # Filter per size
+        if (geom.GetArea() < 1) or (geom.GetArea() > 100):
+            dst_layer.DeleteFeature(feature.GetFID())
 
-    gdal.Polygonize(srcband, srcband, dst_layer, 0, [], callback=None )
 
-    print "Shapefile correctly saved in shpResult"+os.sep+"%s" %path
+    dst_layer.SyncToDisk()
+    dst_ds.ExecuteSQL("REPACK " + file)
+
+    print "Number of features after deleting: ", dst_layer.GetFeatureCount()
+    dst_ds = None
+
+    print "*---------------------------*"
+    print "Shapefile correctly saved in: " + shapepath
     end = time.time()
-    print "Time poligonize:"
+    print "Time for polygonizing: "
     print (end-start)
-    polylayer.SyncToDisk()
-    dataSource.ExecuteSQL("REPACK "+file)
-    print polylayer.GetFeatureCount()
-    dataSource = None
-# img = gdal.Open('MovingW/pt599000-4413000-4-1iter3x3.tiff')
-# imgarray = gdalnumeric.LoadFile('MovingW/pt599000-4413000-4-1iter3x3.tiff')
-# projection = img.GetProjection()
-# geotrans = img.GetGeoTransform()
-# poligonize(imgarray.T, 'pt599000-4413000-4-1iter3x3',projection,geotrans)
 
 
-for file in os.listdir("/Volumes/FREECOM/Laura/Pine/shpResult/"):
-  if file.endswith(".tiff"):
-    file = os.path.splitext(file)[0]
-    poligonize("/Volumes/FREECOM/Laura/Pine/shpResult/" +str(file)+".shp", file)
+
+def main(rasterpath, shapepath):
+    for file in os.listdir(rasterpath):
+        if file.endswith("_smooth.tif"):
+            file = os.path.splitext(file)[0]
+            print "Opening.. " + file + ".tif"
+            polygonize(shapepath, file, rasterpath)
 
 
+if __name__ == "__main__":
+    main(rasterpath, shapepath)
